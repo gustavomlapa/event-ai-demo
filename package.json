@@ -1,0 +1,35 @@
+{
+  "name": "tech-battle-royale",
+  "version": "1.0.0",
+  "description": "Live interactive tech clash game on Google Cloud Run and Firestore for 300 IT professionals",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "jest --detectOpenHandles --forceExit"
+  },
+  "keywords": [
+    "cloud-run",
+    "firestore",
+    "gcp",
+    "live-demo",
+    "realtime",
+    "ai-agent"
+  ],
+  "author": "Tech Battle Royale",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/firestore": "^7.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 10000
+  }
+}

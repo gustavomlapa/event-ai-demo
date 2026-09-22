@@ -4,7 +4,7 @@
 - [x] 2. In `.env.example`, define the required environment variables (`GCP_PROJECT_ID`, `GCP_REGION`, `SERVICE_NAME`, `PORT`, `FIRESTORE_DATABASE_ID`, `USE_LOCAL_MOCK`).
 - [x] 3. In `deploy.sh`, write an automated deployment script for Google Cloud Run that validates `.env`, configures flags (concurrency, unauthenticated access), and deploys the container.
 - [x] 4. In `TECH_BATTLE_SPEC_PROMPT.md`, document the complete context (audience narrative, AI productivity value, GCP Cloud Run + Firestore architecture, the 10 questions, the trophy algorithm, and the exact Antigravity prompt for live execution).
-- [ ] 5. In `package.json`, configure project metadata, runtime dependencies (`express`, `@google-cloud/firestore`, `dotenv`, `cors`), test runner (`jest`, `supertest`), and scripts.
+- [x] 5. In `package.json`, configure project metadata, runtime dependencies (`express`, `@google-cloud/firestore`, `dotenv`, `cors`), test runner (`jest`, `supertest`), and scripts.
 - [ ] 6. In `tests/trophyService.test.js`, write unit tests for the trophy calculation algorithm (The Flash, The Philosopher, The Lone Wolf, Voice of the People, and edge cases like zero votes or ties).
 - [ ] 7. In `src/services/trophyService.js`, implement the trophy calculation functions until all tests in `tests/trophyService.test.js` pass.
 - [ ] 8. In `tests/gameService.test.js`, write unit tests for game state lifecycle, the 10 predefined questions, duplicate vote prevention, and score aggregation.
