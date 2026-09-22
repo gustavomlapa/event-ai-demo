@@ -1,7 +1,7 @@
 # PLAN: Tech Battle Royale (Live AI Demo on Cloud Run + Firestore)
 
 - [x] 1. In `.gitignore`, create comprehensive ignore rules for `node_modules`, `.env`, build artifacts, and system files.
-- [ ] 2. In `.env.example`, define the required environment variables (`GCP_PROJECT_ID`, `GCP_REGION`, `SERVICE_NAME`, `PORT`, `FIRESTORE_DATABASE_ID`, `USE_LOCAL_MOCK`).
+- [x] 2. In `.env.example`, define the required environment variables (`GCP_PROJECT_ID`, `GCP_REGION`, `SERVICE_NAME`, `PORT`, `FIRESTORE_DATABASE_ID`, `USE_LOCAL_MOCK`).
 - [ ] 3. In `deploy.sh`, write an automated deployment script for Google Cloud Run that validates `.env`, configures flags (concurrency, unauthenticated access), and deploys the container.
 - [ ] 4. In `TECH_BATTLE_SPEC_PROMPT.md`, document the complete context (audience narrative, AI productivity value, GCP Cloud Run + Firestore architecture, the 10 questions, the trophy algorithm, and the exact Antigravity prompt for live execution).
 - [ ] 5. In `package.json`, configure project metadata, runtime dependencies (`express`, `@google-cloud/firestore`, `dotenv`, `cors`), test runner (`jest`, `supertest`), and scripts.
