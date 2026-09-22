@@ -13,6 +13,6 @@
 - [x] 11. In `src/config/env.js`, `src/config/firestore.js`, `src/app.js`, and `src/server.js`, implement the configuration and Express server until all integration tests in `tests/api.test.js` pass.
 - [x] 12. In `src/public/index.html` and `src/public/js/player.js`, build the 1-tap mobile participant interface with nickname registration, touch feedback, and response time measurement.
 - [x] 13. In `src/public/screen.html` and `src/public/js/screen.js`, build the high-resolution stage display with dynamic QR code, animated tug-of-war battle bar, real-time score updates, and the trophy celebration podium.
-- [ ] 14. In `src/public/admin.html` and `src/public/js/admin.js`, build the discrete presenter dashboard to advance rounds and reset sessions.
+- [x] 14. In `src/public/admin.html` and `src/public/js/admin.js`, build the discrete presenter dashboard to advance rounds and reset sessions.
 - [ ] 15. In `Dockerfile` and `.dockerignore`, configure the multi-stage build optimized for Google Cloud Run with non-root user execution.
 - [ ] 16. Run full verification suite (`npm test`, syntax validation of `deploy.sh`, and local server dry-run).

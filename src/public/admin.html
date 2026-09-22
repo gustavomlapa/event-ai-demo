@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tech Battle Royale — Controle do Apresentador</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-950 text-white min-h-screen p-6 max-w-2xl mx-auto">
+
+  <!-- Header -->
+  <header class="flex justify-between items-center border-b border-slate-800 pb-4">
+    <div>
+      <h1 class="text-xl font-black text-cyan-400">Controle do Apresentador 🎛️</h1>
+      <p class="text-xs text-slate-400">Painel remoto para conduzir o Tech Battle Royale no palco</p>
+    </div>
+    <div class="text-right">
+      <span class="text-xs text-slate-400 block">Participantes</span>
+      <span id="adminDevsCount" class="text-2xl font-black text-white font-mono">0</span>
+    </div>
+  </header>
+
+  <!-- Live Status Card -->
+  <main class="py-6 space-y-6">
+
+    <div class="p-6 bg-slate-900 rounded-2xl border border-slate-800 space-y-3">
+      <div class="flex justify-between items-center">
+        <span class="text-xs uppercase font-extrabold text-slate-400 tracking-wider">Status Atual</span>
+        <span id="adminStatusBadge" class="px-3 py-1 bg-blue-950 text-cyan-400 border border-blue-500/40 rounded-full text-xs font-bold uppercase">
+          LOBBY
+        </span>
+      </div>
+
+      <div>
+        <span id="adminRoundTitle" class="text-xl font-bold text-white block">Aguardando Início</span>
+        <span id="adminRoundDetails" class="text-xs text-slate-400">Clique no botão abaixo para abrir a Rodada 1.</span>
+      </div>
+
+      <!-- Live Votes Mini Counter -->
+      <div id="adminVotesSection" class="hidden pt-3 border-t border-slate-800 flex justify-between text-sm">
+        <span class="text-blue-400 font-bold">Opção A: <span id="adminCountA">0</span></span>
+        <span class="text-slate-300 font-bold">Total: <span id="adminTotalVotes">0</span></span>
+        <span class="text-orange-400 font-bold">Opção B: <span id="adminCountB">0</span></span>
+      </div>
+    </div>
+
+    <!-- Main Action Button -->
+    <div class="space-y-4">
+      <button
+        id="btnAdminNext"
+        class="w-full py-5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-xl rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+      >
+        <span id="btnAdminNextText">Abrir Rodada 1 🚀</span>
+      </button>
+
+      <button
+        id="btnAdminReset"
+        class="w-full py-3 bg-slate-900 hover:bg-red-950 text-slate-400 hover:text-red-300 border border-slate-800 hover:border-red-800 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+      >
+        Reiniciar Jogo (Voltar ao Lobby) 🔄
+      </button>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="flex justify-center gap-6 text-xs text-slate-400 pt-4 border-t border-slate-800">
+      <a href="/screen.html" target="_blank" class="hover:text-cyan-400 underline">Abrir Telão (/screen.html) ↗</a>
+      <a href="/" target="_blank" class="hover:text-cyan-400 underline">Abrir Mobile (/index.html) ↗</a>
+    </div>
+
+  </main>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
