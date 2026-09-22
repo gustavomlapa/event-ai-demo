@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tech Battle Royale — Telão do Palco</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- QRCode generator library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Canvas Confetti for trophy ceremony -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-950 text-white min-h-screen p-8 flex flex-col justify-between selection:bg-cyan-500">
+
+  <!-- Stage Top Bar -->
+  <header class="flex justify-between items-center border-b border-slate-800 pb-4">
+    <div class="flex items-center gap-3">
+      <span class="w-3.5 h-3.5 rounded-full bg-emerald-400 pulse-live"></span>
+      <h1 class="text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-400">
+        TECH BATTLE ROYALE
+      </h1>
+      <span class="text-xs px-2.5 py-1 bg-slate-800 text-slate-400 rounded-md font-mono">Cloud Run + Firestore</span>
+    </div>
+
+    <!-- Live Devs Counter -->
+    <div class="flex items-center gap-6">
+      <div class="text-right">
+        <span class="text-xs uppercase font-semibold text-slate-400 block">Devs Conectados</span>
+        <span id="screenDevsCount" class="text-3xl font-black text-cyan-400 font-mono">0</span>
+      </div>
+      <div id="roundIndicatorBadge" class="hidden px-4 py-2 bg-indigo-950/80 border border-indigo-700/50 rounded-xl text-center">
+        <span class="text-xs uppercase text-indigo-300 font-semibold block">Rodada</span>
+        <span id="currentRoundNum" class="text-xl font-bold text-white">1/10</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stage Content Canvas -->
+  <main class="my-auto py-8">
+
+    <!-- 1. LOBBY SCREEN (QR CODE + INVITATION) -->
+    <section id="screenLobby" class="flex flex-col lg:flex-row items-center justify-center gap-16 max-w-6xl mx-auto">
+      <div class="space-y-6 text-center lg:text-left max-w-xl">
+        <span class="px-4 py-1.5 bg-blue-900/40 border border-blue-500/30 text-cyan-300 text-sm font-semibold rounded-full uppercase tracking-wider">
+          Live Interactive Demo
+        </span>
+        <h2 class="text-5xl font-extrabold tracking-tight text-white leading-tight">
+          Aponte a câmera do celular e entre na Arena!
+        </h2>
+        <p class="text-lg text-slate-300 leading-relaxed">
+          Sem login, sem formulários longos. Apenas 1 toque por rodada para decidir os grandes debates de tecnologia da nossa era.
+        </p>
+        <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 inline-block">
+          <span class="text-xs text-slate-400 block uppercase font-mono">Ou acesse pelo navegador:</span>
+          <span id="screenDirectUrl" class="text-xl font-mono font-bold text-cyan-300 underline"></span>
+        </div>
+      </div>
+
+      <!-- QR Code Box -->
+      <div class="p-6 bg-white rounded-3xl shadow-2xl flex flex-col items-center justify-center glow-box">
+        <div id="qrcodeCanvas" class="p-2"></div>
+        <span class="text-slate-900 text-xs font-black uppercase tracking-widest mt-3">Escaneie para Jogar</span>
+      </div>
+    </section>
+
+    <!-- 2. ACTIVE BATTLE SCREEN (TUG OF WAR) -->
+    <section id="screenBattle" class="hidden max-w-5xl mx-auto space-y-10">
+      <div class="text-center space-y-2">
+        <span id="battleCategory" class="px-4 py-1 bg-slate-800 text-cyan-400 text-sm font-semibold rounded-full uppercase tracking-wider">
+          Categoria
+        </span>
+        <h2 id="battleQuestionTitle" class="text-4xl lg:text-5xl font-black text-white leading-tight pt-2">
+          Título da Pergunta
+        </h2>
+      </div>
+
+      <!-- Duel Cards -->
+      <div class="grid grid-cols-2 gap-8">
+        <!-- Option A Card -->
+        <div class="p-8 rounded-3xl bg-gradient-to-br from-blue-950/70 to-slate-900 border-2 border-blue-500/50 space-y-4 text-center">
+          <span class="text-xs uppercase font-extrabold tracking-widest text-blue-400">Opção A</span>
+          <h3 id="battleTitleA" class="text-3xl font-black text-white">Opção A</h3>
+          <p id="battleDescA" class="text-sm text-slate-300">Descrição A</p>
+          <div class="pt-4">
+            <span id="battlePercentA" class="text-5xl font-black text-blue-400 font-mono">50%</span>
+            <span id="battleVotesA" class="text-xs text-slate-400 block mt-1">(0 votos)</span>
+          </div>
+        </div>
+
+        <!-- Option B Card -->
+        <div class="p-8 rounded-3xl bg-gradient-to-br from-orange-950/70 to-slate-900 border-2 border-orange-500/50 space-y-4 text-center">
+          <span class="text-xs uppercase font-extrabold tracking-widest text-orange-400">Opção B</span>
+          <h3 id="battleTitleB" class="text-3xl font-black text-white">Opção B</h3>
+          <p id="battleDescB" class="text-sm text-slate-300">Descrição B</p>
+          <div class="pt-4">
+            <span id="battlePercentB" class="text-5xl font-black text-orange-400 font-mono">50%</span>
+            <span id="battleVotesB" class="text-xs text-slate-400 block mt-1">(0 votos)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Animated Tug-of-war Bar -->
+      <div class="space-y-2">
+        <div class="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-400">
+          <span>Opção A</span>
+          <span id="battleTotalVotesText" class="text-cyan-400 font-mono">0 Votos Computados</span>
+          <span>Opção B</span>
+        </div>
+        <div class="w-full h-8 bg-slate-900 rounded-full overflow-hidden flex border border-slate-700 shadow-inner">
+          <div id="tugBarA" class="battle-bar-a h-full" style="width: 50%;"></div>
+          <div id="tugBarB" class="battle-bar-b h-full" style="width: 50%;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. REVEAL WINNER SCREEN -->
+    <section id="screenReveal" class="hidden text-center max-w-4xl mx-auto space-y-8 py-6">
+      <span class="text-sm uppercase font-extrabold tracking-widest text-cyan-400">Resultado Oficial do Auditório</span>
+      <h2 class="text-3xl text-slate-300 font-bold">A opção vencedora foi:</h2>
+      <div class="p-10 bg-slate-900/90 rounded-3xl border-2 border-yellow-500/50 glow-box space-y-4">
+        <div class="text-6xl animate-bounce">🏆</div>
+        <h3 id="winnerTitle" class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-400">
+          Opção Vencedora
+        </h3>
+        <p id="winnerStatsText" class="text-xl font-mono text-slate-200">68% dos votos da sala</p>
+      </div>
+    </section>
+
+    <!-- 4. TROPHY CEREMONY ("O OSCAR DOS DEVS") -->
+    <section id="screenTrophies" class="hidden max-w-6xl mx-auto space-y-8">
+      <div class="text-center space-y-2">
+        <h2 class="text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500">
+          O OSCAR DOS DEVS 🏆
+        </h2>
+        <p class="text-lg text-slate-300">Destaques matemáticos do auditório calculados a partir dos dados reais no Firestore!</p>
+      </div>
+
+      <!-- 4 Trophy Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- The Flash -->
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-yellow-500/40 text-center space-y-3">
+          <div class="text-4xl">⚡</div>
+          <h4 class="font-extrabold text-lg text-yellow-300">The Flash</h4>
+          <p class="text-xs text-slate-400">Dev de Gatilho Rápido</p>
+          <div class="py-2">
+            <span id="trophyFlashNick" class="text-2xl font-black text-white block">-</span>
+            <span id="trophyFlashTime" class="text-xs text-cyan-400 font-mono">0ms de média</span>
+          </div>
+          <p class="text-[11px] text-slate-400 italic">"Nem pensou, só clicou! Agilidade pura em produção."</p>
+        </div>
+
+        <!-- The Philosopher -->
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-blue-500/40 text-center space-y-3">
+          <div class="text-4xl">🧘</div>
+          <h4 class="font-extrabold text-lg text-blue-300">O Filósofo</h4>
+          <p class="text-xs text-slate-400">Filósofo da Arquitetura</p>
+          <div class="py-2">
+            <span id="trophyPhilNick" class="text-2xl font-black text-white block">-</span>
+            <span id="trophyPhilTime" class="text-xs text-cyan-400 font-mono">0ms de média</span>
+          </div>
+          <p class="text-[11px] text-slate-400 italic">"Pensou com carinho até o último segundo antes de decidir."</p>
+        </div>
+
+        <!-- The Lone Wolf -->
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-purple-500/40 text-center space-y-3">
+          <div class="text-4xl">🐺</div>
+          <h4 class="font-extrabold text-lg text-purple-300">Lobo Solitário</h4>
+          <p class="text-xs text-slate-400">O Diferentão</p>
+          <div class="py-2">
+            <span id="trophyWolfNick" class="text-2xl font-black text-white block">-</span>
+            <span id="trophyWolfCount" class="text-xs text-purple-400 font-mono">0 votos na minoria</span>
+          </div>
+          <p class="text-[11px] text-slate-400 italic">"Não segue a manada! Nada contra a corrente com orgulho."</p>
+        </div>
+
+        <!-- Voice of the People -->
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-emerald-500/40 text-center space-y-3">
+          <div class="text-4xl">🤝</div>
+          <h4 class="font-extrabold text-lg text-emerald-300">Voz do Povo</h4>
+          <p class="text-xs text-slate-400">O Diplomata</p>
+          <div class="py-2">
+            <span id="trophyVoiceNick" class="text-2xl font-black text-white block">-</span>
+            <span id="trophyVoiceCount" class="text-xs text-emerald-400 font-mono">0 votos com a maioria</span>
+          </div>
+          <p class="text-[11px] text-slate-400 italic">"Em total sintonia com o sentimento coletivo do auditório."</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Stage Footer -->
+  <footer class="flex justify-between items-center text-xs text-slate-500 border-t border-slate-800 pt-4">
+    <span>Live Architecture: <strong>Google Cloud Run</strong> &bull; <strong>Firestore (Native Mode)</strong></span>
+    <span>Orquestrado com IA • Feito ao vivo</span>
+  </footer>
+
+  <script src="/js/screen.js"></script>
+</body>
+</html>
