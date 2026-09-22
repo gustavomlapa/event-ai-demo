@@ -15,4 +15,4 @@
 - [x] 13. In `src/public/screen.html` and `src/public/js/screen.js`, build the high-resolution stage display with dynamic QR code, animated tug-of-war battle bar, real-time score updates, and the trophy celebration podium.
 - [x] 14. In `src/public/admin.html` and `src/public/js/admin.js`, build the discrete presenter dashboard to advance rounds and reset sessions.
 - [x] 15. In `Dockerfile` and `.dockerignore`, configure the multi-stage build optimized for Google Cloud Run with non-root user execution.
-- [ ] 16. Run full verification suite (`npm test`, syntax validation of `deploy.sh`, and local server dry-run).
+- [x] 16. Run full verification suite (`npm test`, syntax validation of `deploy.sh`, and local server dry-run).
