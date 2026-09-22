@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Tech Battle Royale - Cloud Run Deployment Script
+# Tech Battle Royale - Cloud Run Deployment Script (Self-Healing IAM & APIs)
 # ==============================================================================
 set -euo pipefail
 
@@ -45,28 +45,96 @@ if [ ${#MISSING_VARS[@]} -gt 0 ]; then
 fi
 
 echo "📋 Configurações carregadas do .env:"
-echo "   - GCP Project: $GCP_PROJECT_ID"
-echo "   - Region:      $GCP_REGION"
-echo "   - Service:     $SERVICE_NAME"
+echo "   - GCP Project:  $GCP_PROJECT_ID"
+echo "   - Region:       $GCP_REGION"
+echo "   - Service:      $SERVICE_NAME"
 echo "   - Firestore DB: ${FIRESTORE_DATABASE_ID:-(default)}"
 
-# 3. Check gcloud CLI
-if ! command -v gcloud &> /dev/null; then
+# 3. Resolve gcloud CLI executable
+GCLOUD_CMD="gcloud"
+if [ -f "/Users/gustavolapa/Documents/libs/google-cloud-sdk/bin/gcloud" ]; then
+  GCLOUD_CMD="/Users/gustavolapa/Documents/libs/google-cloud-sdk/bin/gcloud"
+elif ! command -v gcloud &> /dev/null; then
   echo "❌ Erro: 'gcloud' CLI não está instalado ou não está no PATH."
   exit 1
 fi
 
-# Set active project
-echo "🔧 Configurando projeto ativo no gcloud..."
-gcloud config set project "$GCP_PROJECT_ID" --quiet
+echo "🔧 Verificando projeto ativo ($GCP_PROJECT_ID)..."
+"$GCLOUD_CMD" config set project "$GCP_PROJECT_ID" --quiet 2>/dev/null || true
 
-# 4. Enable required APIs (idempotent)
-echo "🔌 Verificando e habilitando APIs necessárias (Cloud Run & Firestore)..."
-gcloud services enable run.googleapis.com firestore.googleapis.com --quiet
+# 4. Resolve Project Number & Service Accounts
+echo "🔍 Identificando número do projeto e Service Accounts..."
+PROJECT_NUMBER=$("$GCLOUD_CMD" projects describe "$GCP_PROJECT_ID" --format='value(projectNumber)')
+COMPUTE_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+CLOUDBUILD_SA="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
 
-# 5. Deploy to Cloud Run
+echo "   - Project Number: $PROJECT_NUMBER"
+echo "   - Default Compute SA: $COMPUTE_SA"
+
+# 5. Enable Required APIs (Cloud Run, Cloud Build, Artifact Registry, Firestore, Storage)
+echo "🔌 Verificando e habilitando APIs necessárias..."
+"$GCLOUD_CMD" services enable \
+  run.googleapis.com \
+  cloudbuild.googleapis.com \
+  artifactregistry.googleapis.com \
+  firestore.googleapis.com \
+  storage.googleapis.com \
+  --project "$GCP_PROJECT_ID" \
+  --quiet
+
+# 6. Configure IAM Roles for Build and Runtime
+# In newer GCP projects, Cloud Build uses the Compute Engine default service account to resolve source zips in GCS and write images.
+# Also, the Cloud Run container runtime requires Firestore access (roles/datastore.user).
+echo "🛡️ Configurando permissões IAM essenciais..."
+
+REQUIRED_ROLES=(
+  "roles/storage.admin"
+  "roles/logging.logWriter"
+  "roles/artifactregistry.writer"
+  "roles/datastore.user"
+)
+
+for role in "${REQUIRED_ROLES[@]}"; do
+  echo "   - Atribuindo $role para $COMPUTE_SA..."
+  "$GCLOUD_CMD" projects add-iam-policy-binding "$GCP_PROJECT_ID" \
+    --member="serviceAccount:$COMPUTE_SA" \
+    --role="$role" \
+    --condition=None \
+    --quiet > /dev/null || true
+done
+
+# Also ensure Cloud Build SA has storage and logging access if it exists
+echo "   - Verificando permissões para Cloud Build SA..."
+"$GCLOUD_CMD" projects add-iam-policy-binding "$GCP_PROJECT_ID" \
+  --member="serviceAccount:$CLOUDBUILD_SA" \
+  --role="roles/storage.admin" \
+  --condition=None \
+  --quiet > /dev/null 2>&1 || true
+
+"$GCLOUD_CMD" projects add-iam-policy-binding "$GCP_PROJECT_ID" \
+  --member="serviceAccount:$CLOUDBUILD_SA" \
+  --role="roles/logging.logWriter" \
+  --condition=None \
+  --quiet > /dev/null 2>&1 || true
+
+# 7. Ensure Firestore Native Database exists
+echo "🗄️ Verificando banco de dados Firestore..."
+DB_NAME="${FIRESTORE_DATABASE_ID:-(default)}"
+if ! "$GCLOUD_CMD" firestore databases describe --database="$DB_NAME" --project "$GCP_PROJECT_ID" --quiet >/dev/null 2>&1; then
+  echo "   - Banco '$DB_NAME' não encontrado. Criando Firestore em modo Nativo em $GCP_REGION..."
+  "$GCLOUD_CMD" firestore databases create \
+    --location="$GCP_REGION" \
+    --type=firestore-native \
+    --database="$DB_NAME" \
+    --project "$GCP_PROJECT_ID" \
+    --quiet || true
+else
+  echo "   - Banco Firestore '$DB_NAME' já existe e está pronto."
+fi
+
+# 8. Deploy to Cloud Run
 echo "📦 Iniciando build e deploy no Cloud Run..."
-gcloud run deploy "$SERVICE_NAME" \
+"$GCLOUD_CMD" run deploy "$SERVICE_NAME" \
   --source . \
   --project "$GCP_PROJECT_ID" \
   --region "$GCP_REGION" \
@@ -86,7 +154,7 @@ echo "🎉 DEPLOY CONCLUÍDO COM SUCESSO!"
 echo "=================================================="
 
 # Get service URL
-SERVICE_URL=$(gcloud run services describe "$SERVICE_NAME" \
+SERVICE_URL=$("$GCLOUD_CMD" run services describe "$SERVICE_NAME" \
   --project "$GCP_PROJECT_ID" \
   --region "$GCP_REGION" \
   --format='value(status.url)')

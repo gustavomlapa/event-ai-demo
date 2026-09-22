@@ -16,3 +16,6 @@
 - [x] 14. In `src/public/admin.html` and `src/public/js/admin.js`, build the discrete presenter dashboard to advance rounds and reset sessions.
 - [x] 15. In `Dockerfile` and `.dockerignore`, configure the multi-stage build optimized for Google Cloud Run with non-root user execution.
 - [x] 16. Run full verification suite (`npm test`, syntax validation of `deploy.sh`, and local server dry-run).
+- [x] 17. In `deploy.sh`, add automated IAM resolution and role bindings (`roles/storage.admin`, `roles/logging.logWriter`, `roles/artifactregistry.writer`, `roles/datastore.user`) for the default compute service account, enable Cloud Build and Artifact Registry APIs, and initialize Firestore native database if not existing.
+- [x] 18. In `TECH_BATTLE_SPEC_PROMPT.md`, document the IAM prerequisites and update the master prompt to instruct Antigravity to handle new project IAM setup automatically in `deploy.sh`.
+- [x] 19. Validate `deploy.sh` and run deployment verification.

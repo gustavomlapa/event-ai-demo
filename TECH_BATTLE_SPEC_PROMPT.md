@@ -25,8 +25,16 @@ Este documento foi elaborado para ser utilizado como **contexto e prompt mestre*
 - **Database:** **Google Cloud Firestore** (Native Mode).
   - Baixa latência, alta vazão de escrita para absorver os 300 votos simultâneos por rodada.
   - Suporte a modo local (mock em memória) para desenvolvimento e testes offline.
+  - Inicialização automática via script de deploy se ainda não criado no projeto.
+- **Segurança & IAM (Projetos Novos):**
+  - APIs necessárias: `run.googleapis.com`, `cloudbuild.googleapis.com`, `artifactregistry.googleapis.com`, `firestore.googleapis.com`, `storage.googleapis.com`.
+  - Service Account do Compute Engine (`[PROJECT_NUMBER]-compute@developer.gserviceaccount.com`):
+    - `roles/storage.admin` (leitura do zip de fontes gerado pelo Cloud Build)
+    - `roles/logging.logWriter` (escrita de logs de build)
+    - `roles/artifactregistry.writer` (publicação de containers no Artifact Registry)
+    - `roles/datastore.user` (acesso do container Cloud Run para ler/escrever no Firestore)
 - **Configuração:** Gerenciada via variáveis de ambiente carregadas do `.env` (`GCP_PROJECT_ID`, `GCP_REGION`, `SERVICE_NAME`, `PORT`).
-- **Automação:** Script `deploy.sh` idempotente para validação de ambiente e deploy com 1 comando.
+- **Automação Self-Healing:** Script `deploy.sh` que resolve automaticamente o ID/número do projeto, habilita APIs, aplica as roles IAM e faz o deploy sem necessidade de configurações manuais no console.
 
 ---
 
@@ -92,7 +100,11 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
    - Backend: Node.js (Express), modular, servindo a API REST e os assets estáticos em um único container.
    - Banco de Dados: Firestore no modo nativo (com suporte a fallback mock local via USE_LOCAL_MOCK).
    - Configurações: Carregadas a partir do arquivo .env (GCP_PROJECT_ID, GCP_REGION, SERVICE_NAME, PORT, FIRESTORE_DATABASE_ID).
-   - Deploy: Script deploy.sh para automatizar gcloud run deploy com concorrência para 80 conexões e min-instances 1.
+   - Deploy & Automação de IAM: Script deploy.sh auto-contido e resiliente para projetos novos no GCP:
+     * Habilita APIs: run.googleapis.com, cloudbuild.googleapis.com, artifactregistry.googleapis.com, firestore.googleapis.com, storage.googleapis.com.
+     * Concede roles à Service Account do Compute Engine ([PROJECT_NUMBER]-compute@developer.gserviceaccount.com): roles/storage.admin, roles/logging.logWriter, roles/artifactregistry.writer, roles/datastore.user.
+     * Cria automaticamente a base Firestore no modo nativo caso ainda não exista.
+     * Executa gcloud run deploy com concorrência para 80 conexões e min-instances 1.
 
 2. AS 10 RODADAS TÉCNICAS:
    Implemente exatamente as 10 rodadas técnicas pré-configuradas:
@@ -146,3 +158,4 @@ Comece agora criando os arquivos de configuração, testes e implementação com
    - Aplausos e descontração no auditório.
 5. **Minuto 23 a 25 (Fechamento Inspirador):**
    - Conclusão: *"O que vimos aqui não foi apenas um jogo. Foi um sistema em nuvem com banco de dados distribuído em tempo real, containerizado, testado e publicado em minutos. É esse superpoder que a IA coloca nas mãos de cada um de vocês."*
+
