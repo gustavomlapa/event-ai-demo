@@ -1,0 +1,89 @@
+/* ==============================================================================
+   Tech Battle Royale - Stylesheet
+   ============================================================================== */
+
+:root {
+  --bg-dark: #0b0f19;
+  --bg-card: #131b2e;
+  --bg-card-hover: #1c2742;
+  --accent-cyan: #00f2fe;
+  --accent-blue: #4facfe;
+  --accent-orange: #ff5858;
+  --accent-coral: #f09819;
+  --accent-green: #10b981;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-glow: rgba(79, 172, 254, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.glow-text {
+  text-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+}
+
+.glow-box {
+  box-shadow: 0 0 25px rgba(79, 172, 254, 0.15);
+  border: 1px solid var(--border-glow);
+}
+
+/* Big 1-Tap Buttons */
+.btn-option-a {
+  background: linear-gradient(135deg, #0052d4 0%, #4364f7 50%, #6fb1fc 100%);
+  color: white;
+  transition: transform 0.1s ease, filter 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-option-a:active {
+  transform: scale(0.97);
+  filter: brightness(1.2);
+}
+
+.btn-option-b {
+  background: linear-gradient(135deg, #f83600 0%, #fe8c00 100%);
+  color: white;
+  transition: transform 0.1s ease, filter 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-option-b:active {
+  transform: scale(0.97);
+  filter: brightness(1.2);
+}
+
+/* Tug-of-war Bar Animation */
+.battle-bar-a {
+  background: linear-gradient(90deg, #0052d4, #4364f7);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.battle-bar-b {
+  background: linear-gradient(90deg, #fe8c00, #f83600);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Pulse animation */
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.pulse-live {
+  animation: pulse-ring 2s infinite ease-in-out;
+}

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tech Battle Royale — Player</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="p-4 flex flex-col justify-between max-w-md mx-auto w-full">
+
+  <!-- Header -->
+  <header class="text-center py-2 border-b border-slate-800">
+    <div class="flex items-center justify-center gap-2">
+      <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-live"></span>
+      <h1 class="text-lg font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+        TECH BATTLE ROYALE
+      </h1>
+    </div>
+    <div id="playerBadge" class="text-xs text-slate-400 mt-1 hidden">
+      Conectado como: <span id="playerNameDisplay" class="font-bold text-cyan-300"></span>
+    </div>
+  </header>
+
+  <!-- Main Container (Dynamic Views) -->
+  <main class="my-auto py-4">
+
+    <!-- VIEW 1: JOIN SCREEN -->
+    <section id="viewJoin" class="space-y-6">
+      <div class="text-center space-y-2">
+        <div class="text-4xl">⚔️</div>
+        <h2 class="text-2xl font-bold text-white">Entre no Duelo</h2>
+        <p class="text-sm text-slate-400">Escolha seu apelido para votar e concorrer aos troféus no telão!</p>
+      </div>
+
+      <form id="joinForm" class="space-y-4">
+        <div>
+          <label for="nicknameInput" class="block text-xs font-semibold text-slate-300 uppercase mb-1">Seu Nickname</label>
+          <input
+            type="text"
+            id="nicknameInput"
+            placeholder="Ex: dev_ninja, mari_cloud"
+            maxlength="20"
+            required
+            autocomplete="off"
+            class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-lg focus:outline-none focus:border-cyan-400"
+          >
+        </div>
+        <button
+          type="submit"
+          class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-lg rounded-xl shadow-lg transition-all"
+        >
+          Entrar na Arena 🚀
+        </button>
+      </form>
+    </section>
+
+    <!-- VIEW 2: LOBBY WAIT SCREEN -->
+    <section id="viewLobby" class="hidden text-center space-y-6 py-8">
+      <div class="text-5xl animate-bounce">⏳</div>
+      <h2 class="text-2xl font-bold text-white">Você está conectado!</h2>
+      <p class="text-slate-300">Aguardando o apresentador abrir a próxima rodada no telão...</p>
+      <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 text-xs text-slate-400">
+        💡 <strong>Dica de Campeão:</strong> Quando a rodada abrir, decida rápido! O troféu <span class="text-yellow-400 font-bold">The Flash ⚡</span> vai para quem tiver o menor tempo de resposta.
+      </div>
+    </section>
+
+    <!-- VIEW 3: ACTIVE ROUND (1-TAP VOTING) -->
+    <section id="viewActive" class="hidden space-y-4">
+      <div class="text-center space-y-1">
+        <span id="roundCategory" class="px-3 py-1 bg-slate-800 text-cyan-400 text-xs font-semibold rounded-full uppercase tracking-wider">
+          Categoria
+        </span>
+        <h2 id="roundTitle" class="text-xl font-bold text-white pt-2 leading-tight">
+          Título da Pergunta
+        </h2>
+      </div>
+
+      <!-- 2 Big 1-Tap Buttons -->
+      <div class="grid grid-cols-1 gap-4 pt-2">
+        <button
+          id="btnOptionA"
+          type="button"
+          class="btn-option-a p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center text-center space-y-2 border border-blue-400/30"
+        >
+          <span class="text-xs uppercase font-extrabold tracking-widest text-blue-200">OPÇÃO A</span>
+          <span id="textOptionA" class="text-xl font-black">Opção A</span>
+          <span id="descOptionA" class="text-xs text-blue-100 opacity-90">Descrição rápida</span>
+        </button>
+
+        <button
+          id="btnOptionB"
+          type="button"
+          class="btn-option-b p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center text-center space-y-2 border border-orange-400/30"
+        >
+          <span class="text-xs uppercase font-extrabold tracking-widest text-orange-200">OPÇÃO B</span>
+          <span id="textOptionB" class="text-xl font-black">Opção B</span>
+          <span id="descOptionB" class="text-xs text-orange-100 opacity-90">Descrição rápida</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW 4: VOTE CONFIRMATION FEEDBACK -->
+    <section id="viewVoted" class="hidden text-center space-y-4 py-8">
+      <div class="text-5xl">⚡</div>
+      <h2 class="text-2xl font-black text-emerald-400">VOTO REGISTRADO!</h2>
+      <p class="text-slate-300">
+        Você votou em <strong id="votedChoiceText" class="text-white">Opção</strong>
+      </p>
+      <div class="inline-block px-4 py-2 bg-slate-900 border border-slate-700 rounded-full text-sm text-cyan-300 font-mono font-bold">
+        Tempo de Reação: <span id="votedTimeMs">0</span>ms
+      </div>
+      <p class="text-xs text-slate-400 pt-4">👀 Olhe para o telão para acompanhar a barra em tempo real!</p>
+    </section>
+
+    <!-- VIEW 5: REVEAL ROUND WINNER -->
+    <section id="viewReveal" class="hidden text-center space-y-4 py-6">
+      <div class="text-4xl">📊</div>
+      <h2 class="text-xl font-bold text-white">Rodada Encerrada!</h2>
+      <div id="revealResultBox" class="p-6 bg-slate-900 rounded-2xl border border-slate-800 space-y-3">
+        <p class="text-xs uppercase font-bold text-slate-400">Opção mais votada na sala:</p>
+        <p id="revealWinnerText" class="text-2xl font-black text-yellow-400">-</p>
+        <div class="flex justify-around text-sm font-semibold pt-2 border-t border-slate-800">
+          <span class="text-blue-400">A: <span id="revealPercentA">0</span>%</span>
+          <span class="text-orange-400">B: <span id="revealPercentB">0</span>%</span>
+        </div>
+      </div>
+      <p class="text-xs text-slate-400">Aguarde a próxima rodada...</p>
+    </section>
+
+    <!-- VIEW 6: FINISHED GAME & TROPHIES -->
+    <section id="viewFinished" class="hidden text-center space-y-6 py-6">
+      <div class="text-5xl">🏆</div>
+      <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-200">
+        DUELO FINALIZADO!
+      </h2>
+      <p class="text-slate-300">
+        Confira os vencedores do <strong>Oscar dos Devs</strong> no telão do palco!
+      </p>
+      <div class="p-4 bg-slate-900/80 rounded-xl border border-yellow-500/30 text-xs text-slate-300 space-y-2">
+        <p>⚡ <strong>The Flash:</strong> O mais rápido da sala</p>
+        <p>🧘 <strong>O Filósofo:</strong> Pensou até o último segundo</p>
+        <p>🐺 <strong>Lobo Solitário:</strong> Votou contra a manada</p>
+        <p>🤝 <strong>Voz do Povo:</strong> Alinhado com a maioria</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-[10px] text-slate-500 py-2 border-t border-slate-800">
+    Tech Battle Royale • Live AI Demo • Google Cloud Run + Firestore
+  </footer>
+
+  <script src="/js/player.js"></script>
+</body>
+</html>

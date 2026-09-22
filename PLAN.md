@@ -11,7 +11,7 @@
 - [x] 9. In `src/services/gameService.js`, implement game state management, round lifecycle, and voting logic with Firestore support until all tests in `tests/gameService.test.js` pass.
 - [x] 10. In `tests/api.test.js`, write failing integration tests for all REST API endpoints (`/api/state`, `/api/join`, `/api/vote`, `/api/results`, `/api/trophies`, `/api/admin/next`, `/api/admin/reset`).
 - [x] 11. In `src/config/env.js`, `src/config/firestore.js`, `src/app.js`, and `src/server.js`, implement the configuration and Express server until all integration tests in `tests/api.test.js` pass.
-- [ ] 12. In `src/public/index.html` and `src/public/js/player.js`, build the 1-tap mobile participant interface with nickname registration, touch feedback, and response time measurement.
+- [x] 12. In `src/public/index.html` and `src/public/js/player.js`, build the 1-tap mobile participant interface with nickname registration, touch feedback, and response time measurement.
 - [ ] 13. In `src/public/screen.html` and `src/public/js/screen.js`, build the high-resolution stage display with dynamic QR code, animated tug-of-war battle bar, real-time score updates, and the trophy celebration podium.
 - [ ] 14. In `src/public/admin.html` and `src/public/js/admin.js`, build the discrete presenter dashboard to advance rounds and reset sessions.
 - [ ] 15. In `Dockerfile` and `.dockerignore`, configure the multi-stage build optimized for Google Cloud Run with non-root user execution.
