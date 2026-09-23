@@ -82,3 +82,4 @@ describe('REST API Endpoints Integration', () => {
     expect(resetRes.body.status).toBe('LOBBY');
   });
 });
+

@@ -19,3 +19,8 @@
 - [x] 17. In `deploy.sh`, add automated IAM resolution and role bindings (`roles/storage.admin`, `roles/logging.logWriter`, `roles/artifactregistry.writer`, `roles/datastore.user`) for the default compute service account, enable Cloud Build and Artifact Registry APIs, and initialize Firestore native database if not existing.
 - [x] 18. In `TECH_BATTLE_SPEC_PROMPT.md`, document the IAM prerequisites and update the master prompt to instruct Antigravity to handle new project IAM setup automatically in `deploy.sh`.
 - [x] 19. Validate `deploy.sh` and run deployment verification.
+- [x] 20. In `tests/gameService.test.js`, add unit tests for asymmetric voting percentages (0% vs 100%) and 0 total votes.
+- [x] 21. In `src/services/gameService.js`, fix percentage calculation when `totalVotes === 0` to return 0% for both options.
+- [x] 22. In `src/public/js/screen.js` and `src/public/js/player.js`, replace `data.percentA || 50` falsy bug with proper nullish coalescing (`??`) and update the tug-of-war bar to stay centered (50/50) only when 0 votes exist and accurately reflect real percentages when votes exist.
+- [x] 23. In `TECH_BATTLE_SPEC_PROMPT.md`, update prompt instructions to warn against JavaScript `0 || 50` falsy evaluation and specify accurate percentage rendering.
+- [x] 24. Re-run tests, deploy update to Cloud Run via `./deploy.sh`, and verify in production.

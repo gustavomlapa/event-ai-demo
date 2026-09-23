@@ -51,10 +51,14 @@ Este documento foi elaborado para ser utilizado como **contexto e prompt mestre*
   - Contador ao vivo de participantes conectados (*"15... 84... 210... 300 Devs Conectados"*).
 - **Modo Batalha (Durante a Rodada):**
   - Título da rodada e as duas opções técnicas em confronto.
-  - Gráfico dinâmico estilo **Cabo de Guerra** balançando em tempo real conforme os votos chegam ao Firestore.
+  - Gráfico dinâmico estilo **Cabo de Guerra** balançando em tempo real conforme os votos chegam.
+  - **Cálculo Coerente de Porcentagens:**
+    * Com 0 votos: exibe `0% (0 votos)` para ambas opções, com a barra visual mantida no centro (50% / 50%) aguardando o primeiro voto.
+    * Conforme os votos entram: calcula estritamente `percentA = Math.round((countA / total) * 100)` e `percentB = 100 - percentA` (sempre somando 100%).
+    * **Atenção ao Bug Falsy em JS:** Nunca use `percentA || 50` no frontend, pois `0 || 50` vira `50`, gerando distorções como 50% vs 100%. Use sempre nullish check (`percentA !== undefined ? percentA : 0`).
   - Timer regressivo visual sincronizado (10 segundos).
 - **Modo Revelação da Rodada:**
-  - Percentual de cada opção e comemoração visual da opção vencedora.
+  - Percentual exato de cada opção e comemoração visual da opção vencedora (ou empate técnico).
 - **Modo Cerimônia Final ("O Oscar dos Devs"):**
   - Revelação dos troféus divertidos calculados matematicamente sobre os votos reais:
     - ⚡ **The Flash (Gatilho Rápido):** Menor tempo médio de resposta geral da sala.
@@ -121,6 +125,7 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
 
 3. REQUISITOS DAS TELAS (FRONTEND MODERNO & RESPONSIVO):
    - Telão (/screen.html): Exibe QR Code gerado dinamicamente para a URL atual, contador de devs conectados, barra animada de "cabo de guerra" que oscila em tempo real com os votos, timer regressivo de 10s e o pódio final dos troféus com confetes.
+     * Coerência de Votos em Tempo Real: Com 0 votos exiba 0% (0 votos) e mantenha a barra no centro (50%/50%). Conforme os votos chegam, calcule as porcentagens reais de modo que sempre somem 100%. Evite o bug do JavaScript '0 || 50' tratando explicitamente valores numéricos com nullish check.
    - Participante Mobile (/): Tela limpa para digitar apelido, 2 botões grandes coloridos por rodada, haptic feedback no clique, bloqueio de voto duplo e registro do tempo de resposta (ms).
    - Painel do Apresentador (/admin.html): Controle discreto para iniciar, fechar e avançar rodadas ou reiniciar a partida.
 

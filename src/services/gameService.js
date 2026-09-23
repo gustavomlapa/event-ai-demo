@@ -179,8 +179,8 @@ class GameService {
     }
 
     const totalVotes = countA + countB;
-    const percentA = totalVotes > 0 ? Math.round((countA / totalVotes) * 100) : 50;
-    const percentB = totalVotes > 0 ? 100 - percentA : 50;
+    const percentA = totalVotes > 0 ? Math.round((countA / totalVotes) * 100) : 0;
+    const percentB = totalVotes > 0 ? 100 - percentA : 0;
 
     let winner = null;
     if (countA > countB) winner = 'A';
@@ -238,3 +238,4 @@ module.exports = {
   GameService,
   QUESTIONS,
 };
+

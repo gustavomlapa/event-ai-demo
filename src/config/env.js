@@ -13,3 +13,4 @@ module.exports = {
   USE_LOCAL_MOCK: process.env.USE_LOCAL_MOCK === 'true',
   ADMIN_SECRET: process.env.ADMIN_SECRET || 'tech-clash-live-2026',
 };
+

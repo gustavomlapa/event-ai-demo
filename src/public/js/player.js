@@ -176,9 +176,16 @@
     try {
       const res = await fetch(`/api/results?round=${roundIdx}`);
       const data = await res.json();
-      revealPercentA.textContent = data.percentA || 50;
-      revealPercentB.textContent = data.percentB || 50;
-      if (data.winner === 'A') {
+      const totalVotes = Number(data.totalVotes) || 0;
+      const pA = data.percentA !== undefined ? Number(data.percentA) : 0;
+      const pB = data.percentB !== undefined ? Number(data.percentB) : 0;
+
+      revealPercentA.textContent = pA;
+      revealPercentB.textContent = pB;
+
+      if (totalVotes === 0) {
+        revealWinnerText.textContent = 'Sem votos nesta rodada';
+      } else if (data.winner === 'A') {
         revealWinnerText.textContent = data.question ? data.question.optionA.text : 'Opção A';
       } else if (data.winner === 'B') {
         revealWinnerText.textContent = data.question ? data.question.optionB.text : 'Opção B';
@@ -197,3 +204,4 @@
   syncState();
   setInterval(syncState, 1000);
 })();
+

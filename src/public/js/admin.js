@@ -106,3 +106,4 @@
   syncState();
   setInterval(syncState, 1000);
 })();
+

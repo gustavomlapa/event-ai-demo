@@ -64,3 +64,4 @@ describe('trophyService - Superlative Award Engine', () => {
     expect(trophies.theVoiceOfThePeople.majorityCount).toBe(2);
   });
 });
+

@@ -74,27 +74,37 @@
       const res = await fetch(`/api/results?round=${roundIndex}`);
       const data = await res.json();
 
-      const pA = data.percentA || 50;
-      const pB = data.percentB || 50;
+      const totalVotes = Number(data.totalVotes) || 0;
+      const countA = Number(data.countA) || 0;
+      const countB = Number(data.countB) || 0;
+      const pA = data.percentA !== undefined ? Number(data.percentA) : 0;
+      const pB = data.percentB !== undefined ? Number(data.percentB) : 0;
 
       battlePercentA.textContent = `${pA}%`;
       battlePercentB.textContent = `${pB}%`;
-      battleVotesA.textContent = `(${data.countA || 0} votos)`;
-      battleVotesB.textContent = `(${data.countB || 0} votos)`;
-      battleTotalVotesText.textContent = `${data.totalVotes || 0} Votos Computados`;
+      battleVotesA.textContent = `(${countA} ${countA === 1 ? 'voto' : 'votos'})`;
+      battleVotesB.textContent = `(${countB} ${countB === 1 ? 'voto' : 'votos'})`;
+      battleTotalVotesText.textContent = `${totalVotes} ${totalVotes === 1 ? 'Voto Computado' : 'Votos Computados'}`;
 
-      tugBarA.style.width = `${pA}%`;
-      tugBarB.style.width = `${pB}%`;
+      // Quando não há votos na rodada, mantém a barra equilibrada no centro (50% / 50%)
+      // Assim que os votos entram, reflete com precisão as porcentagens reais
+      const barWidthA = totalVotes > 0 ? pA : 50;
+      const barWidthB = totalVotes > 0 ? pB : 50;
+      tugBarA.style.width = `${barWidthA}%`;
+      tugBarB.style.width = `${barWidthB}%`;
 
-      if (data.winner === 'A') {
+      if (totalVotes === 0) {
+        winnerTitle.textContent = 'Nenhum voto registrado ⏳';
+        winnerStatsText.textContent = 'Aguardando próxima rodada!';
+      } else if (data.winner === 'A') {
         winnerTitle.textContent = data.question ? data.question.optionA.text : 'Opção A';
-        winnerStatsText.textContent = `${pA}% dos votos (${data.countA} votos)`;
+        winnerStatsText.textContent = `${pA}% dos votos (${countA} ${countA === 1 ? 'voto' : 'votos'})`;
       } else if (data.winner === 'B') {
         winnerTitle.textContent = data.question ? data.question.optionB.text : 'Opção B';
-        winnerStatsText.textContent = `${pB}% dos votos (${data.countB} votos)`;
+        winnerStatsText.textContent = `${pB}% dos votos (${countB} ${countB === 1 ? 'voto' : 'votos'})`;
       } else {
         winnerTitle.textContent = 'Empate Técnico! ⚖️';
-        winnerStatsText.textContent = 'Ambas opções empataram na sala!';
+        winnerStatsText.textContent = `Ambas as opções empataram com ${countA} votos cada!`;
       }
     } catch (err) {
       console.warn('Erro ao atualizar resultados:', err);
@@ -180,3 +190,4 @@
   syncState();
   setInterval(syncState, 800);
 })();
+

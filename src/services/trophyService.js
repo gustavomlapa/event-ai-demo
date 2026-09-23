@@ -135,3 +135,4 @@ function calculateTrophies(votes = []) {
 module.exports = {
   calculateTrophies,
 };
+

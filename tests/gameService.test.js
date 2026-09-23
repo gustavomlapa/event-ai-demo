@@ -86,6 +86,31 @@ describe('gameService - Session & Voting Management', () => {
     expect(results.percentB).toBe(50);
   });
 
+  test('calculates accurate percentages with 0 votes and asymmetric votes', () => {
+    // Round with 0 votes
+    const zeroResults = game.getRoundResults(0);
+    expect(zeroResults.totalVotes).toBe(0);
+    expect(zeroResults.countA).toBe(0);
+    expect(zeroResults.countB).toBe(0);
+    expect(zeroResults.percentA).toBe(0);
+    expect(zeroResults.percentB).toBe(0);
+
+    // Open round 0
+    game.nextPhase();
+
+    // 2 votes exclusively for Option B
+    game.submitVote({ nickname: 'dev1', roundIndex: 0, choice: 'B', responseTimeMs: 200 });
+    game.submitVote({ nickname: 'dev2', roundIndex: 0, choice: 'B', responseTimeMs: 300 });
+
+    const asymmetricResults = game.getRoundResults(0);
+    expect(asymmetricResults.totalVotes).toBe(2);
+    expect(asymmetricResults.countA).toBe(0);
+    expect(asymmetricResults.countB).toBe(2);
+    expect(asymmetricResults.percentA).toBe(0);
+    expect(asymmetricResults.percentB).toBe(100);
+    expect(asymmetricResults.winner).toBe('B');
+  });
+
   test('resetGame returns to initial LOBBY and clears votes', () => {
     game.registerParticipant('alice');
     game.nextPhase();
@@ -99,3 +124,4 @@ describe('gameService - Session & Voting Management', () => {
     expect(game.getAllVotes()).toHaveLength(0);
   });
 });
+
