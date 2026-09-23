@@ -17,6 +17,7 @@ describe('REST API Endpoints Integration', () => {
     expect(res.body.status).toBe('LOBBY');
     expect(res.body.roundIndex).toBe(0);
     expect(res.body.totalQuestions).toBe(10);
+    expect(typeof res.body.sessionId).toBe('string');
   });
 
   test('POST /api/join registers a participant', async () => {
@@ -77,9 +78,11 @@ describe('REST API Endpoints Integration', () => {
     expect(trophiesRes.body.thePhilosopher.nickname).toBe('slow_dev');
 
     // 7. Reset game
+    const beforeState = await request(app).get('/api/state');
     const resetRes = await request(app).post('/api/admin/reset');
     expect(resetRes.status).toBe(200);
     expect(resetRes.body.status).toBe('LOBBY');
+    expect(resetRes.body.sessionId).not.toBe(beforeState.body.sessionId);
   });
 });
 

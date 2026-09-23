@@ -111,7 +111,11 @@ describe('gameService - Session & Voting Management', () => {
     expect(asymmetricResults.winner).toBe('B');
   });
 
-  test('resetGame returns to initial LOBBY and clears votes', () => {
+  test('resetGame returns to initial LOBBY, clears votes and generates new sessionId', () => {
+    const initialSessionId = game.getState().sessionId;
+    expect(typeof initialSessionId).toBe('string');
+    expect(initialSessionId.length).toBeGreaterThan(0);
+
     game.registerParticipant('alice');
     game.nextPhase();
     game.submitVote({ nickname: 'alice', roundIndex: 0, choice: 'A', responseTimeMs: 300 });
@@ -122,6 +126,8 @@ describe('gameService - Session & Voting Management', () => {
     expect(state.roundIndex).toBe(0);
     expect(state.participantsCount).toBe(0);
     expect(game.getAllVotes()).toHaveLength(0);
+    expect(state.sessionId).toBeDefined();
+    expect(state.sessionId).not.toBe(initialSessionId);
   });
 });
 

@@ -24,3 +24,8 @@
 - [x] 22. In `src/public/js/screen.js` and `src/public/js/player.js`, replace `data.percentA || 50` falsy bug with proper nullish coalescing (`??`) and update the tug-of-war bar to stay centered (50/50) only when 0 votes exist and accurately reflect real percentages when votes exist.
 - [x] 23. In `TECH_BATTLE_SPEC_PROMPT.md`, update prompt instructions to warn against JavaScript `0 || 50` falsy evaluation and specify accurate percentage rendering.
 - [x] 24. Re-run tests, deploy update to Cloud Run via `./deploy.sh`, and verify in production.
+- [x] 25. In `src/services/gameService.js`, add `sessionId` tracked on instance, regenerated on `resetGame()`, and exposed in `getState()`.
+- [x] 26. In `tests/gameService.test.js`, write unit tests verifying `sessionId` generation and regeneration on `resetGame()`.
+- [x] 27. In `src/public/index.html` and `src/public/js/player.js`, add logout buttons ("Sair / Trocar Nickname"), hide them during ACTIVE rounds, and implement auto-logout upon `sessionId` mismatch when admin resets the match.
+- [x] 28. In `TECH_BATTLE_SPEC_PROMPT.md`, update the specification and Master Prompt with the session management, logout button, and admin reset sync rules.
+- [x] 29. Run tests, deploy update to Cloud Run via `deploy.sh`, and verify.

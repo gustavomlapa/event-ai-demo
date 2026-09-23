@@ -78,6 +78,7 @@ const QUESTIONS = [
 class GameService {
   constructor(firestoreAdapter = null) {
     this.firestoreAdapter = firestoreAdapter;
+    this.sessionId = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
     this.status = 'LOBBY'; // 'LOBBY' | 'ACTIVE' | 'REVEAL' | 'FINISHED'
     this.roundIndex = 0;
     this.participants = new Set();
@@ -88,6 +89,7 @@ class GameService {
   getState() {
     const currentQ = QUESTIONS[this.roundIndex] || null;
     return {
+      sessionId: this.sessionId,
       status: this.status,
       roundIndex: this.roundIndex,
       totalQuestions: QUESTIONS.length,
@@ -112,7 +114,7 @@ class GameService {
       this.firestoreAdapter.saveParticipant(nickname).catch(() => {});
     }
 
-    return { success: true, nickname };
+    return { success: true, nickname, sessionId: this.sessionId };
   }
 
   submitVote({ nickname, roundIndex, choice, responseTimeMs }) {
@@ -221,6 +223,7 @@ class GameService {
   }
 
   resetGame() {
+    this.sessionId = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
     this.status = 'LOBBY';
     this.roundIndex = 0;
     this.participants.clear();

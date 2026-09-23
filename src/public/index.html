@@ -17,8 +17,11 @@
         TECH BATTLE ROYALE
       </h1>
     </div>
-    <div id="playerBadge" class="text-xs text-slate-400 mt-1 hidden">
-      Conectado como: <span id="playerNameDisplay" class="font-bold text-cyan-300"></span>
+    <div id="playerBadge" class="text-xs text-slate-400 mt-1 hidden inline-flex items-center justify-center gap-2">
+      <span>Conectado como: <strong id="playerNameDisplay" class="font-bold text-cyan-300"></strong></span>
+      <button id="btnLogout" type="button" title="Sair / Trocar Nickname" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-300 border border-slate-700 text-[11px] transition-colors">
+        Sair ✕
+      </button>
     </div>
   </header>
 
@@ -62,6 +65,11 @@
       <p class="text-slate-300">Aguardando o apresentador abrir a próxima rodada no telão...</p>
       <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 text-xs text-slate-400">
         💡 <strong>Dica de Campeão:</strong> Quando a rodada abrir, decida rápido! O troféu <span class="text-yellow-400 font-bold">The Flash ⚡</span> vai para quem tiver o menor tempo de resposta.
+      </div>
+      <div>
+        <button id="btnLobbyLogout" type="button" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-rose-300 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-rose-500/50 rounded-xl transition-all">
+          🚪 Trocar Apelido / Sair
+        </button>
       </div>
     </section>
 

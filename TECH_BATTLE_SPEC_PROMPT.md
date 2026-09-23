@@ -44,6 +44,10 @@ Este documento foi elaborado para ser utilizado como **contexto e prompt mestre*
 - **Zero Fricção:** O usuário lê o QR Code no telão e digita apenas seu **Apelido** (sem login, sem senha).
 - **Interação de 1 Toque (1-Tap):** A cada rodada aberta, o participante vê apenas **2 botões grandes e contrastantes** na tela do smartphone.
 - **Feedback Tátil & Latência:** Ao tocar no botão, a interface trava o voto (evitando clique duplo), vibra (haptic feedback) e exibe o tempo de resposta em milissegundos (ex: *"Votado em 340ms! Olhe para o telão"*).
+- **Gestão de Sessão & Botão de Sair:**
+  - Disponibilizar botão "Sair / Trocar Nickname" no cabeçalho e na tela de Lobby para quem quiser alterar seu nome enquanto uma rodada não estiver em andamento.
+  - Durante o status `ACTIVE` da rodada, o botão de sair fica oculto para evitar toques acidentais durante a votação rápida.
+  - **Auto-Logout ao Reiniciar Jogo:** O backend gera e atualiza um `sessionId` toda vez que a partida é reiniciada via `/api/admin/reset`. Os navegadores dos participantes comparam o `sessionId` atual via `/api/state` e deslogam automaticamente (limpando o `localStorage`), retornando à tela inicial de entrada de nome.
 
 ### 🖥️ 2. Tela do Telão (Projetor/Stage - `/screen.html`)
 - **Modo Lobby:**
@@ -128,6 +132,7 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
    - Telão (/screen.html): Exibe QR Code gerado dinamicamente para a URL atual, contador de devs conectados, barra animada de "cabo de guerra" que oscila em tempo real com os votos, timer regressivo de 10s e o pódio final dos troféus com confetes.
      * Coerência de Votos em Tempo Real: Com 0 votos exiba 0% (0 votos) e mantenha a barra no centro (50%/50%). Conforme os votos chegam, a barra e os textos refletem as porcentagens reais (ex: 0% e 100%, 33% e 67%). NUNCA use 'data.percentA || 50' no frontend (pois '0 || 50' vira 50 em JS); use sempre verificação estrita ('data.percentA !== undefined ? Number(data.percentA) : 0').
    - Participante Mobile (/): Tela limpa para digitar apelido, 2 botões grandes coloridos por rodada, haptic feedback no clique, bloqueio de voto duplo, registro do tempo de resposta (ms) e exibição das porcentagens reais na revelação.
+     * Gestão de Sessão & Desconexão: Botão "Sair / Trocar Nickname" no cabeçalho e na tela de espera (ocultado durante ACTIVE para evitar toques acidentais). Rastreie um sessionId no servidor (regenerado ao reiniciar o jogo no admin); clientes sincronizam via polling e efetuam auto-logout ao detectar sessionId alterado, retornando à tela de inserção de nome.
    - Painel do Apresentador (/admin.html): Controle discreto para iniciar, fechar e avançar rodadas ou reiniciar a partida.
 
 4. ALGORITMO DOS TROFÉUS (O OSCAR DOS DEVS):

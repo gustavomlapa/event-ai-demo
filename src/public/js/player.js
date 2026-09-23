@@ -38,6 +38,9 @@
   const revealPercentA = document.getElementById('revealPercentA');
   const revealPercentB = document.getElementById('revealPercentB');
 
+  const btnLogout = document.getElementById('btnLogout');
+  const btnLobbyLogout = document.getElementById('btnLobbyLogout');
+
   function showView(viewElement) {
     [viewJoin, viewLobby, viewActive, viewVoted, viewReveal, viewFinished].forEach((v) => {
       v.classList.add('hidden');
@@ -48,8 +51,37 @@
   function updatePlayerBadge() {
     if (nickname) {
       playerBadge.classList.remove('hidden');
+      playerBadge.classList.add('inline-flex');
       playerNameDisplay.textContent = nickname;
+    } else {
+      playerBadge.classList.add('hidden');
+      playerBadge.classList.remove('inline-flex');
     }
+  }
+
+  function logoutPlayer() {
+    nickname = '';
+    localStorage.removeItem('tbr_nickname');
+    localStorage.removeItem('tbr_session_id');
+    hasVotedInCurrentRound = false;
+    currentRoundRendered = null;
+    updatePlayerBadge();
+    nicknameInput.value = '';
+    showView(viewJoin);
+  }
+
+  if (btnLogout) {
+    btnLogout.addEventListener('click', (e) => {
+      e.preventDefault();
+      logoutPlayer();
+    });
+  }
+
+  if (btnLobbyLogout) {
+    btnLobbyLogout.addEventListener('click', (e) => {
+      e.preventDefault();
+      logoutPlayer();
+    });
   }
 
   // 1. Join Handler
@@ -68,6 +100,9 @@
       if (data.success) {
         nickname = data.nickname;
         localStorage.setItem('tbr_nickname', nickname);
+        if (data.sessionId) {
+          localStorage.setItem('tbr_session_id', data.sessionId);
+        }
         updatePlayerBadge();
         syncState();
       } else {
@@ -132,6 +167,26 @@
       const res = await fetch('/api/state');
       const state = await res.json();
       currentState = state;
+
+      // Se o apresentador resetou o jogo no admin, o sessionId mudou -> desloga automaticamente
+      const currentStoredSession = localStorage.getItem('tbr_session_id');
+      if (state.sessionId) {
+        if (!currentStoredSession) {
+          localStorage.setItem('tbr_session_id', state.sessionId);
+        } else if (currentStoredSession !== state.sessionId) {
+          logoutPlayer();
+          return;
+        }
+      }
+
+      // Oculta o botão de sair durante a rodada ACTIVE para evitar toques acidentais
+      if (btnLogout) {
+        if (state.status === 'ACTIVE') {
+          btnLogout.classList.add('hidden');
+        } else {
+          btnLogout.classList.remove('hidden');
+        }
+      }
 
       // Handle round transitions
       if (state.roundIndex !== currentRoundRendered) {
