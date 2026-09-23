@@ -28,3 +28,4 @@ EXPOSE 8080
 # Start via dumb-init for graceful SIGTERM shutdown
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["node", "src/server.js"]
+
