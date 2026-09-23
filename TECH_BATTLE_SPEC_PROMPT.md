@@ -102,6 +102,7 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
 
 1. ARQUITETURA & STACK:
    - Backend: Node.js (Express), modular, servindo a API REST e os assets estáticos em um único container.
+     * Cálculo de Votos: Quando total de votos for 0, retorne percentA: 0 e percentB: 0. Quando houver votos, calcule percentA = Math.round((countA / total) * 100) e percentB = 100 - percentA (soma sempre 100%).
    - Banco de Dados: Firestore no modo nativo (com suporte a fallback mock local via USE_LOCAL_MOCK).
    - Configurações: Carregadas a partir do arquivo .env (GCP_PROJECT_ID, GCP_REGION, SERVICE_NAME, PORT, FIRESTORE_DATABASE_ID).
    - Deploy & Automação de IAM: Script deploy.sh auto-contido e resiliente para projetos novos no GCP:
@@ -125,8 +126,8 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
 
 3. REQUISITOS DAS TELAS (FRONTEND MODERNO & RESPONSIVO):
    - Telão (/screen.html): Exibe QR Code gerado dinamicamente para a URL atual, contador de devs conectados, barra animada de "cabo de guerra" que oscila em tempo real com os votos, timer regressivo de 10s e o pódio final dos troféus com confetes.
-     * Coerência de Votos em Tempo Real: Com 0 votos exiba 0% (0 votos) e mantenha a barra no centro (50%/50%). Conforme os votos chegam, calcule as porcentagens reais de modo que sempre somem 100%. Evite o bug do JavaScript '0 || 50' tratando explicitamente valores numéricos com nullish check.
-   - Participante Mobile (/): Tela limpa para digitar apelido, 2 botões grandes coloridos por rodada, haptic feedback no clique, bloqueio de voto duplo e registro do tempo de resposta (ms).
+     * Coerência de Votos em Tempo Real: Com 0 votos exiba 0% (0 votos) e mantenha a barra no centro (50%/50%). Conforme os votos chegam, a barra e os textos refletem as porcentagens reais (ex: 0% e 100%, 33% e 67%). NUNCA use 'data.percentA || 50' no frontend (pois '0 || 50' vira 50 em JS); use sempre verificação estrita ('data.percentA !== undefined ? Number(data.percentA) : 0').
+   - Participante Mobile (/): Tela limpa para digitar apelido, 2 botões grandes coloridos por rodada, haptic feedback no clique, bloqueio de voto duplo, registro do tempo de resposta (ms) e exibição das porcentagens reais na revelação.
    - Painel do Apresentador (/admin.html): Controle discreto para iniciar, fechar e avançar rodadas ou reiniciar a partida.
 
 4. ALGORITMO DOS TROFÉUS (O OSCAR DOS DEVS):
