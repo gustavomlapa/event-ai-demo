@@ -29,3 +29,13 @@
 - [x] 27. In `src/public/index.html` and `src/public/js/player.js`, add logout buttons ("Sair / Trocar Nickname"), hide them during ACTIVE rounds, and implement auto-logout upon `sessionId` mismatch when admin resets the match.
 - [x] 28. In `TECH_BATTLE_SPEC_PROMPT.md`, update the specification and Master Prompt with the session management, logout button, and admin reset sync rules.
 - [x] 29. Run tests, deploy update to Cloud Run via `deploy.sh`, and verify.
+
+## Skills: Engenharia de Software, Nuvem & Segurança
+
+- [x] 30. In `Skills/gcp-cloud-run-firestore-scaling.md`, create the comprehensive skill document on GCP Cloud Run & Firestore scaling best practices (concurrency, cold starts, memory, execution environment, Firestore contention, distributed counters, caching, indexes).
+- [x] 31. In `Skills/seguranca-apps-gcp.md`, create the skill document on application and GCP security best practices (secret leak prevention, pre-commit/gitleaks, Secret Manager, Workload Identity Federation, IAM least privilege, Cloud Armor, Firestore security rules).
+- [x] 32. In `Skills/pipeline-deploy-gcloud.md`, create the skill document on automated deployment pipelines using `gcloud` and Cloud Build / GitHub Actions (Workload Identity, multi-stage containers, traffic splitting/canary, rollback automation).
+- [x] 33. In `Skills/testes-tdd.md`, create the skill document on Test-Driven Development (Red-Green-Refactor, test pyramid, FIRST principles, mocking vs local emulators, async and edge case coverage).
+- [x] 34. In `Skills/git-versionamento.md`, create the skill document on Git versioning and workflow best practices (Conventional Commits, Trunk-Based vs GitHub Flow, atomic commits, branch protection, tags and SemVer, merge vs rebase).
+- [x] 35. In `Skills/README.md`, create the index catalog and quick-start guide for all skills.
+- [x] 36. Stage and commit the Skills documentation following the git commit conventions.
