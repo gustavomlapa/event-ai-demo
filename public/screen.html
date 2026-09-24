@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tech Battle Royale — Telão Principal</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <!-- Confetti library para a cerimônia dos troféus -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</head>
+<body style="background-color: #070a12;">
+  <header class="app-header">
+    <div class="logo-badge" style="font-size: 1.4rem;">
+      <span class="live-indicator"></span>
+      <span>Tech Battle Royale ⚡</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span id="screenLiveCounter" class="pill" style="font-size: 1.1rem; color: #4ade80;">
+        🔥 <span id="onlineCountText">0</span> Devs Conectados
+      </span>
+      <span id="screenRoundBadge" class="pill mono" style="font-size: 1rem; color: #60a5fa;">
+        Lobby Aberto
+      </span>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="screen-container">
+
+      <!-- 1. MODO LOBBY: QR Code gigante para entrada sem login -->
+      <section id="stageLobby" class="lobby-screen">
+        <div class="qr-box">
+          <img id="qrCodeImage" alt="QR Code para Participar" src="">
+          <span class="mono" style="margin-top: 12px; color: #000; font-weight: 700; font-size: 1rem;" id="qrCodeUrlText">
+            Carregando URL...
+          </span>
+        </div>
+        <div class="lobby-info">
+          <h1 class="lobby-title">Entre na Batalha Técnica! 📱</h1>
+          <p class="lobby-counter">
+            <span id="lobbyConnectedNum">0</span> Devs no Lobby
+          </p>
+          <p style="font-size: 1.3rem; color: var(--text-secondary); line-height: 1.6;">
+            Aponte a câmera do seu smartphone para o QR Code.<br>
+            <strong>Zero cadastro. Zero senha. Apenas digite seu apelido e prepare seus reflexos!</strong>
+          </p>
+        </div>
+      </section>
+
+      <!-- 2. MODO BATALHA & REVELAÇÃO: Cabo de Guerra e Timer -->
+      <section id="stageBattle" class="hidden" style="display: flex; flex-direction: column; gap: 28px;">
+        <div class="round-header-box">
+          <div id="stageRoundCategory" class="round-category">Arquitetura de Aplicações</div>
+          <h1 id="stageRoundTitle" class="round-main-title">Monolito Bem Feito vs Microsserviços Distribuídos</h1>
+          <p id="stageRoundContext" style="font-size: 1.3rem; color: var(--text-secondary);"></p>
+        </div>
+
+        <!-- Timer Regressivo Sincronizado de 10s -->
+        <div class="timer-container">
+          <div class="timer-box mono">
+            ⏱️ <span id="stageTimerSeconds">10</span>s
+          </div>
+        </div>
+
+        <!-- Cabo de Guerra Dinâmico -->
+        <div class="tug-of-war-container">
+          <div class="tug-labels">
+            <div class="tug-label-a">
+              <div id="stageOptionAName" style="margin-bottom: 6px;">Opção A</div>
+              <span id="stageOptionAPercent" class="tug-percent">0%</span>
+              <span id="stageOptionAVotes" class="tug-vote-count">0 votos</span>
+            </div>
+
+            <div class="tug-label-b">
+              <div id="stageOptionBName" style="margin-bottom: 6px;">Opção B</div>
+              <span id="stageOptionBPercent" class="tug-percent">0%</span>
+              <span id="stageOptionBVotes" class="tug-vote-count">0 votos</span>
+            </div>
+          </div>
+
+          <!-- Barra do Cabo de Guerra -->
+          <div class="tug-bar-track">
+            <div class="tug-bar-center-marker"></div>
+            <div id="tugBarA" class="tug-bar-a" style="width: 50%;"></div>
+            <div id="tugBarB" class="tug-bar-b" style="width: 50%;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. MODO CERIMÔNIA FINAL: O Oscar dos Devs -->
+      <section id="stageFinished" class="hidden">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h1 style="font-size: 3.5rem; font-weight: 900; letter-spacing: -1px;">🏆 O Oscar dos Devs 🏆</h1>
+          <p style="font-size: 1.4rem; color: var(--text-secondary);">
+            Premiação calculada matematicamente com os votos reais da nossa plateia
+          </p>
+        </div>
+
+        <div class="trophies-grid">
+          <!-- The Flash -->
+          <div class="trophy-card">
+            <div class="trophy-icon">⚡</div>
+            <div class="trophy-title">The Flash (Gatilho Rápido)</div>
+            <div id="trophyFlashWinner" class="trophy-winner">-</div>
+            <div id="trophyFlashDesc" class="trophy-desc">Menor tempo médio de resposta geral da sala</div>
+          </div>
+
+          <!-- O Filósofo -->
+          <div class="trophy-card">
+            <div class="trophy-icon">🧘</div>
+            <div class="trophy-title">O Filósofo da Arquitetura</div>
+            <div id="trophyPhilWinner" class="trophy-winner">-</div>
+            <div id="trophyPhilDesc" class="trophy-desc">Pensou até o último segundo em todas as rodadas</div>
+          </div>
+
+          <!-- O Lobo Solitário -->
+          <div class="trophy-card">
+            <div class="trophy-icon">🐺</div>
+            <div class="trophy-title">O Lobo Solitário</div>
+            <div id="trophyWolfWinner" class="trophy-winner">-</div>
+            <div id="trophyWolfDesc" class="trophy-desc">Mais vezes votou contra o senso comum da maioria</div>
+          </div>
+
+          <!-- A Voz do Povo -->
+          <div class="trophy-card">
+            <div class="trophy-icon">🤝</div>
+            <div class="trophy-title">A Voz do Povo</div>
+            <div id="trophyVoiceWinner" class="trophy-winner">-</div>
+            <div id="trophyVoiceDesc" class="trophy-desc">100% alinhado com a esmagadora maioria</div>
+          </div>
+        </div>
+
+        <!-- A Stack Oficial Consagrada -->
+        <div style="margin-top: 36px; text-align: center;">
+          <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 12px;">Consagração: A Stack Oficial do Auditório 🛠️</h2>
+          <div id="stageStackList" class="stack-list"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="/js/screen.js"></script>
+</body>
+</html>

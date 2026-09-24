@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tech Battle Royale — Participante</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo-badge">
+      <span class="live-indicator"></span>
+      <span>Tech Battle Royale</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span id="headerNicknamePill" class="pill hidden"></span>
+      <button id="btnHeaderLogout" class="btn-ghost hidden" onclick="participantApp.logout()">Sair</button>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="participant-container">
+      
+      <!-- TELA 1: Entrada de Apelido (Zero Login) -->
+      <section id="screenJoin" class="card">
+        <h2 style="font-size: 1.8rem; font-weight: 900; margin-bottom: 8px;">Entrar na Batalha ⚔️</h2>
+        <p style="color: var(--text-secondary); line-height: 1.4;">
+          Participe ao vivo com mais de 300 devs. Escolha seu apelido e prepare seus reflexos para votar em 1 toque!
+        </p>
+
+        <form id="formJoin" onsubmit="participantApp.handleJoin(event)">
+          <div class="form-group">
+            <input 
+              type="text" 
+              id="inputNickname" 
+              class="input-field" 
+              placeholder="Seu Apelido (ex: Neo, Ada, DevNinja)" 
+              maxlength="25" 
+              required 
+              autocomplete="off"
+            >
+          </div>
+          <button type="submit" id="btnJoinSubmit" class="btn-primary">
+            🚀 Conectar ao Telão
+          </button>
+        </form>
+      </section>
+
+      <!-- TELA 2: Esperando no Lobby -->
+      <section id="screenLobby" class="card hidden text-center">
+        <div style="font-size: 3.5rem; margin-bottom: 12px;">⏳</div>
+        <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 8px;">Conectado ao Jogo!</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 20px;">
+          Olá, <strong id="lobbyNickDisplay" style="color: #fff;"></strong>! Olhe para o telão e aguarde o apresentador abrir a próxima rodada técnica.
+        </p>
+        <button class="btn-ghost" onclick="participantApp.logout()">Trocar Apelido</button>
+      </section>
+
+      <!-- TELA 3: Arena de Votação Ativa (1-Tap) -->
+      <section id="screenBattle" class="hidden" style="display: flex; flex-direction: column; flex: 1;">
+        <div style="text-align: center; margin-bottom: 12px;">
+          <span id="battleRoundNumber" class="pill" style="color: var(--color-a-light);">Rodada 1 de 10</span>
+          <h2 id="battleRoundTitle" style="font-size: 1.5rem; font-weight: 900; margin-top: 6px;"></h2>
+        </div>
+
+        <!-- Área de Voto 1-Tap -->
+        <div id="votingButtonsContainer" class="battle-buttons">
+          <button id="btnVoteA" class="vote-btn vote-btn-a" onclick="participantApp.castVote('A')">
+            <span style="font-size: 1rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px;">Opção A</span>
+            <span id="textOptionA" style="line-height: 1.2;"></span>
+          </button>
+
+          <button id="btnVoteB" class="vote-btn vote-btn-b" onclick="participantApp.castVote('B')">
+            <span style="font-size: 1rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px;">Opção B</span>
+            <span id="textOptionB" style="line-height: 1.2;"></span>
+          </button>
+        </div>
+
+        <!-- Feedback de Voto Confirmado -->
+        <div id="voteConfirmedBadge" class="vote-voted-badge hidden">
+          <div style="font-weight: 800; font-size: 1.2rem; margin-bottom: 4px;">🎯 Voto Registrado com Sucesso!</div>
+          <div id="voteResponseTimeText" class="mono" style="font-size: 1.1rem; color: #fff;"></div>
+          <div style="margin-top: 6px; font-size: 0.9rem; opacity: 0.9;">Olhe para o telão e veja a disputa do cabo de guerra em tempo real!</div>
+        </div>
+      </section>
+
+      <!-- TELA 4: Revelação / Resultado da Rodada -->
+      <section id="screenReveal" class="card hidden text-center">
+        <div style="font-size: 3rem; margin-bottom: 8px;">📊</div>
+        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 8px;">Rodada Finalizada!</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+          Veja no telão o percentual oficial da plateia e a tecnologia campeã desta rodada.
+        </p>
+        <div id="revealMyChoiceInfo" class="pill mono" style="display: inline-block;"></div>
+      </section>
+
+      <!-- TELA 5: Jogo Encerrado / Oscar dos Devs -->
+      <section id="screenFinished" class="card hidden text-center">
+        <div style="font-size: 3.5rem; margin-bottom: 10px;">🏆</div>
+        <h2 style="font-size: 1.8rem; font-weight: 900; margin-bottom: 8px;">O Oscar dos Devs!</h2>
+        <p style="color: var(--text-secondary); line-height: 1.4;">
+          A batalha chegou ao fim. Olhe para o telão principal para conferir os ganhadores dos troféus divertidos da noite!
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="/js/participant.js"></script>
+</body>
+</html>
