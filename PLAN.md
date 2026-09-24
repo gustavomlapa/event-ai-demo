@@ -39,3 +39,6 @@
 - [x] 34. In `Skills/git-versionamento.md`, create the skill document on Git versioning and workflow best practices (Conventional Commits, Trunk-Based vs GitHub Flow, atomic commits, branch protection, tags and SemVer, merge vs rebase).
 - [x] 35. In `Skills/README.md`, create the index catalog and quick-start guide for all skills.
 - [x] 36. Stage and commit the Skills documentation following the git commit conventions.
+- [x] 37. Move each skill file into its own dedicated subfolder as `SKILL.md` (`Skills/gcp-cloud-run-firestore-scaling/SKILL.md`, `Skills/seguranca-apps-gcp/SKILL.md`, `Skills/pipeline-deploy-gcloud/SKILL.md`, `Skills/testes-tdd/SKILL.md`, `Skills/git-versionamento/SKILL.md`).
+- [x] 38. Update `Skills/README.md` links and references to reflect the subfolder structure.
+- [x] 39. Stage and commit the reorganized skills structure.
