@@ -8,17 +8,22 @@
   <!-- Confetti library para a cerimônia dos troféus -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </head>
-<body style="background-color: #070a12;">
+<body>
   <header class="app-header">
     <div class="logo-badge" style="font-size: 1.4rem;">
-      <span class="live-indicator"></span>
-      <span>Tech Battle Royale ⚡</span>
+      <span class="google-dots-badge">
+        <span class="google-dot google-dot-blue"></span>
+        <span class="google-dot google-dot-red"></span>
+        <span class="google-dot google-dot-yellow"></span>
+        <span class="google-dot google-dot-green"></span>
+      </span>
+      <span>Tech Battle Royale</span>
     </div>
     <div style="display: flex; align-items: center; gap: 16px;">
-      <span id="screenLiveCounter" class="pill" style="font-size: 1.1rem; color: #4ade80;">
-        🔥 <span id="onlineCountText">0</span> Devs Conectados
+      <span id="screenLiveCounter" class="pill" style="font-size: 1.1rem; color: var(--google-green);">
+        <span class="live-indicator"></span> <span id="onlineCountText">0</span> Devs Conectados
       </span>
-      <span id="screenRoundBadge" class="pill mono" style="font-size: 1rem; color: #60a5fa;">
+      <span id="screenRoundBadge" class="pill mono" style="font-size: 1rem; color: var(--google-blue-light);">
         Lobby Aberto
       </span>
     </div>
@@ -31,9 +36,12 @@
       <section id="stageLobby" class="lobby-screen">
         <div class="qr-box">
           <img id="qrCodeImage" alt="QR Code para Participar" src="">
-          <span class="mono" style="margin-top: 12px; color: #000; font-weight: 700; font-size: 1rem;" id="qrCodeUrlText">
+          <span class="mono" style="margin-top: 12px; color: #1e293b; font-weight: 700; font-size: 1rem;" id="qrCodeUrlText">
             Carregando URL...
           </span>
+          <div class="pill" style="margin-top: 10px; font-weight: 700; color: var(--google-blue); border-color: rgba(66, 133, 244, 0.3); background: rgba(66, 133, 244, 0.08);">
+            ⚡ Aponte a Câmera
+          </div>
         </div>
         <div class="lobby-info">
           <h1 class="lobby-title">Entre na Batalha Técnica! 📱</h1>

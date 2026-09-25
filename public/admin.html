@@ -9,12 +9,19 @@
 <body>
   <header class="app-header">
     <div class="logo-badge">
-      <span class="live-indicator"></span>
+      <span class="google-dots-badge">
+        <span class="google-dot google-dot-blue"></span>
+        <span class="google-dot google-dot-red"></span>
+        <span class="google-dot google-dot-yellow"></span>
+        <span class="google-dot google-dot-green"></span>
+      </span>
       <span>Tech Battle Royale — Admin</span>
     </div>
     <div style="display: flex; align-items: center; gap: 12px;">
-      <span id="adminDevsCount" class="pill" style="color: #4ade80;">🔥 0 Devs Conectados</span>
-      <button id="btnAdminLogout" class="pill" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; cursor: pointer;" onclick="adminApp.logout()">🔒 Bloquear</button>
+      <span id="adminDevsCount" class="pill" style="color: var(--google-green);">
+        <span class="live-indicator"></span> <span id="adminDevsCountText">0 Devs Conectados</span>
+      </span>
+      <button id="btnAdminLogout" class="pill" style="background: rgba(234, 67, 53, 0.15); border: 1px solid var(--google-red); color: var(--google-red-light); cursor: pointer;" onclick="adminApp.logout()">🔒 Bloquear</button>
     </div>
   </header>
 

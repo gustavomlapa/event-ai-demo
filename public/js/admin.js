@@ -126,7 +126,7 @@ class AdminApp {
   }
 
   renderState(state) {
-    this.adminDevsCount.textContent = `🔥 ${state.connectedCount || 0} Devs Conectados`;
+    this.adminDevsCount.innerHTML = `<span class="live-indicator"></span> ${state.connectedCount || 0} Devs Conectados`;
     this.adminStatusBadge.textContent = state.status;
 
     const round = state.currentRound;
