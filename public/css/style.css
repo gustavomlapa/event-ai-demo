@@ -725,3 +725,149 @@ body {
   border-radius: 24px 24px 0 0;
   background: var(--google-gradient);
 }
+
+/* =======================================================
+   ANIMAÇÕES & MICROINTERAÇÕES AVANÇADAS (FEEDBACK VISUAL)
+   ======================================================= */
+
+/* Efeito de Tremor de Tela (Screen Shake) para Erros / Voto Minoritário */
+@keyframes screenShake {
+  0% { transform: translate3d(0, 0, 0); }
+  15% { transform: translate3d(-10px, -2px, 0) rotate(-1deg); }
+  30% { transform: translate3d(9px, 2px, 0) rotate(1deg); }
+  45% { transform: translate3d(-7px, -1px, 0) rotate(-0.5deg); }
+  60% { transform: translate3d(5px, 1px, 0) rotate(0.5deg); }
+  75% { transform: translate3d(-3px, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+.shake-effect {
+  animation: screenShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Timer Regressivo Crítico (<= 5s) */
+@keyframes timerUrgentPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 25px rgba(234, 67, 53, 0.7);
+    border-color: var(--google-red);
+    color: #fff;
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 50px rgba(234, 67, 53, 1), 0 0 80px rgba(234, 67, 53, 0.4);
+    border-color: #ff6b6b;
+    color: #ff9999;
+  }
+}
+
+.timer-box.timer-urgent {
+  animation: timerUrgentPulse 0.55s infinite ease-in-out;
+  background: rgba(45, 12, 18, 0.95);
+  border-color: var(--google-red);
+}
+
+/* Destaque Cênico de Vencedor no Telão */
+@keyframes winnerBounce {
+  0% { transform: scale(0.96); box-shadow: 0 0 10px rgba(251, 188, 4, 0.3); }
+  50% { transform: scale(1.05); box-shadow: 0 0 45px rgba(251, 188, 4, 0.9), 0 0 70px rgba(66, 133, 244, 0.4); }
+  100% { transform: scale(1.02); box-shadow: 0 0 35px rgba(251, 188, 4, 0.8); }
+}
+
+@keyframes winnerCrownGlow {
+  0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px rgba(251, 188, 4, 0.8)); }
+  50% { transform: translateY(-6px) scale(1.1); filter: drop-shadow(0 0 22px rgba(251, 188, 4, 1)); }
+}
+
+.stage-card-winner {
+  animation: winnerBounce 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  border-color: var(--google-yellow) !important;
+  z-index: 5;
+  position: relative;
+}
+
+.stage-card-loser {
+  opacity: 0.45;
+  filter: grayscale(0.4);
+  transform: scale(0.96);
+  transition: all 0.5s ease;
+}
+
+.winner-crown-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(251, 188, 4, 0.25), rgba(251, 188, 4, 0.05));
+  border: 1px solid var(--google-yellow);
+  color: var(--google-yellow);
+  font-weight: 800;
+  font-size: 1.15rem;
+  padding: 6px 18px;
+  border-radius: 9999px;
+  margin-bottom: 12px;
+  animation: winnerCrownGlow 1.8s infinite ease-in-out;
+}
+
+/* Cards de Feedback Dramático no Smartphone */
+@keyframes outcomeCardIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  60% { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.mobile-outcome-card {
+  padding: 22px 18px;
+  border-radius: 20px;
+  text-align: center;
+  margin: 16px 0;
+  animation: outcomeCardIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.mobile-outcome-win {
+  background: linear-gradient(145deg, rgba(52, 168, 83, 0.18), rgba(66, 133, 244, 0.18));
+  border: 2px solid var(--google-green);
+  box-shadow: 0 12px 30px var(--google-green-glow);
+}
+
+.mobile-outcome-lose {
+  background: linear-gradient(145deg, rgba(234, 67, 53, 0.15), rgba(22, 27, 38, 0.95));
+  border: 1px solid rgba(234, 67, 53, 0.6);
+  box-shadow: 0 8px 24px rgba(234, 67, 53, 0.25);
+}
+
+.mobile-outcome-tie {
+  background: linear-gradient(145deg, rgba(251, 188, 4, 0.15), rgba(22, 27, 38, 0.95));
+  border: 1px solid var(--google-yellow);
+  box-shadow: 0 8px 24px var(--google-yellow-glow);
+}
+
+/* Efeito Ripple Tátil nos Botões 1-Tap */
+.btn-choice {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-choice:active {
+  transform: scale(0.95);
+}
+
+.btn-choice::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.btn-choice:active::after {
+  width: 250%;
+  padding-bottom: 250%;
+  opacity: 1;
+  transition: width 0.3s ease-out, padding-bottom 0.3s ease-out, opacity 0.5s ease-out;
+}

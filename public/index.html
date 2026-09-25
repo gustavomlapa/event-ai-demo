@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Tech Battle Royale — Participante</title>
   <link rel="stylesheet" href="/css/style.css">
+  <!-- Confetti library para feedback de vitória do participante -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </head>
 <body>
   <header class="app-header">
@@ -91,7 +93,8 @@
 
       <!-- TELA 4: Revelação / Resultado da Rodada -->
       <section id="screenReveal" class="card hidden text-center">
-        <div style="font-size: 3rem; margin-bottom: 8px;">📊</div>
+        <div id="revealOutcomeContainer"></div>
+        <div style="font-size: 2.5rem; margin-bottom: 8px;">📊</div>
         <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 8px;">Rodada Finalizada!</h2>
         <p style="color: var(--text-secondary); margin-bottom: 16px;">
           Veja no telão o percentual oficial da plateia e a tecnologia campeã desta rodada.

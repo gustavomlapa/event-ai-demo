@@ -10,6 +10,7 @@ class ParticipantApp {
     
     this.currentRoundId = null;
     this.roundStartTime = null;
+    this.lastRevealedRoundId = null;
     this.isVotingInProgress = false;
     this.pollInterval = null;
     this.heartbeatInterval = null;
@@ -42,6 +43,7 @@ class ParticipantApp {
     this.voteConfirmedBadge = document.getElementById('voteConfirmedBadge');
     this.voteResponseTimeText = document.getElementById('voteResponseTimeText');
     this.revealMyChoiceInfo = document.getElementById('revealMyChoiceInfo');
+    this.revealOutcomeContainer = document.getElementById('revealOutcomeContainer');
   }
 
   bindEvents() {
@@ -261,14 +263,91 @@ class ParticipantApp {
   }
 
   renderReveal(state) {
-    if (this.currentRoundId) {
-      const myChoice = localStorage.getItem(`tbr_choice_${this.currentRoundId}`);
-      if (myChoice) {
-        this.revealMyChoiceInfo.textContent = `Você votou na Opção ${myChoice}`;
-      } else {
-        this.revealMyChoiceInfo.textContent = `Você não votou nesta rodada`;
-      }
+    const round = state.currentRound;
+    if (!round) return;
+
+    const roundId = round.id;
+    const myChoice = localStorage.getItem(`tbr_choice_${roundId}`);
+    const tally = state.currentTally || { countA: 0, countB: 0, percentA: 0, percentB: 0, totalVotes: 0 };
+
+    let winner = null;
+    if (tally.countA > tally.countB) {
+      winner = 'A';
+    } else if (tally.countB > tally.countA) {
+      winner = 'B';
+    } else if (tally.totalVotes > 0) {
+      winner = 'TIE';
     }
+
+    const isFirstTimeReveal = this.lastRevealedRoundId !== roundId;
+    if (isFirstTimeReveal) {
+      this.lastRevealedRoundId = roundId;
+    }
+
+    if (myChoice) {
+      const choicePercent = myChoice === 'A' ? tally.percentA : tally.percentB;
+      const choiceText = myChoice === 'A' ? round.optionA : round.optionB;
+      this.revealMyChoiceInfo.textContent = `Seu voto: Opção ${myChoice} (${choiceText})`;
+
+      if (winner === 'TIE') {
+        this.revealOutcomeContainer.innerHTML = `
+          <div class="mobile-outcome-card mobile-outcome-tie">
+            <div style="font-size: 2.2rem; margin-bottom: 6px;">🤝 ⚖️</div>
+            <div style="font-size: 1.25rem; font-weight: 900; color: #fbbf24; margin-bottom: 4px;">Empate Técnico Exato!</div>
+            <div style="font-size: 0.95rem; color: #cbd5e1;">A sala se dividiu perfeitamente em 50% vs 50%!</div>
+          </div>
+        `;
+        if (isFirstTimeReveal && navigator.vibrate) {
+          try { navigator.vibrate([80, 40, 80]); } catch (e) {}
+        }
+      } else if (winner && myChoice === winner) {
+        // Acertou / Maioria Vencedora -> Confetes e vibração comemorativa
+        this.revealOutcomeContainer.innerHTML = `
+          <div class="mobile-outcome-card mobile-outcome-win">
+            <div style="font-size: 2.5rem; margin-bottom: 6px;">🎉 🏆</div>
+            <div style="font-size: 1.3rem; font-weight: 900; color: #4ade80; margin-bottom: 4px;">Você Venceu a Rodada!</div>
+            <div style="font-size: 0.95rem; color: #e2e8f0;">Sua escolha (<strong>Opção ${myChoice}</strong>) foi a consagrada pelo auditório com <strong>${choicePercent}%</strong> dos votos!</div>
+          </div>
+        `;
+        if (isFirstTimeReveal) {
+          if (typeof confetti === 'function') {
+            confetti({
+              particleCount: 80,
+              spread: 70,
+              origin: { y: 0.65 },
+              colors: ['#4285F4', '#EA4335', '#FBBC04', '#34A853']
+            });
+          }
+          if (navigator.vibrate) {
+            try { navigator.vibrate([120, 60, 120]); } catch (e) {}
+          }
+        }
+      } else if (winner && myChoice !== winner) {
+        // Errou / Minoria -> Efeito de tremor na tela (Screen Shake)
+        const winningPercent = winner === 'A' ? tally.percentA : tally.percentB;
+        this.revealOutcomeContainer.innerHTML = `
+          <div class="mobile-outcome-card mobile-outcome-lose">
+            <div style="font-size: 2.2rem; margin-bottom: 6px;">🐺 ⚡</div>
+            <div style="font-size: 1.25rem; font-weight: 900; color: #f87171; margin-bottom: 4px;">Minoria Audaciosa!</div>
+            <div style="font-size: 0.95rem; color: #e2e8f0;">Você votou na <strong>Opção ${myChoice}</strong> (${choicePercent}%). A maioria escolheu <strong>Opção ${winner}</strong> (${winningPercent}%).</div>
+          </div>
+        `;
+        if (isFirstTimeReveal) {
+          document.body.classList.remove('shake-effect');
+          void document.body.offsetWidth; // Force reflow
+          document.body.classList.add('shake-effect');
+          setTimeout(() => document.body.classList.remove('shake-effect'), 500);
+
+          if (navigator.vibrate) {
+            try { navigator.vibrate(200); } catch (e) {}
+          }
+        }
+      }
+    } else {
+      this.revealMyChoiceInfo.textContent = `Você não votou nesta rodada`;
+      this.revealOutcomeContainer.innerHTML = '';
+    }
+
     this.showScreen('reveal');
   }
 

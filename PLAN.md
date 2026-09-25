@@ -38,18 +38,35 @@
 - [x] In `public/index.html`, `public/screen.html`, and `public/admin.html`, link Google Fonts (`Google Sans` / `Outfit` / `Roboto Mono`) and enhance header badges, icons, and Google-style pill chips.
 - [x] Run full test suite (`npm test`), verify rendering, and commit atomically with conventional prefixes.
 
-### Nova Demanda: Avanço Automático para Votação Ativa no "Próxima Rodada"
+### Avanço Automático para Votação Ativa no "Próxima Rodada"
 - [x] In `TECH_BATTLE_SPEC_PROMPT.md`, update Section 3 (Painel do Apresentador) and Section 4 (Prompt Mestre) to document that clicking "Próxima Rodada" directly transitions to `ACTIVE`, begins the 30s timer, updates the stage screen, and opens voting immediately, eliminating the redundant step of opening voting manually on every round.
 - [x] In `tests/unit/gameService.test.js`, write unit test verifying that `nextRound()` transitions directly to `ACTIVE`, resets `roundStartTime`, and opens voting.
 - [x] In `src/services/gameService.js`, update `nextRound()` to set `status = 'ACTIVE'`, initialize `roundStartTime = Date.now()`, and prepare votes map for the new round.
 - [x] In `public/admin.html` and `public/js/admin.js`, streamline presenter buttons so that in `LOBBY` the button is "▶️ Iniciar Batalha (Rodada 1)", and in `REVEAL` the button "⏭️ Próxima Rodada" immediately starts the round with 30s countdown and voting open.
 - [x] Run full test suite (`npm test`), verify behavior, and commit atomically with conventional prefixes.
 
+### Nova Demanda: Animações Avançadas, Microinterações e Feedback Visual (Confetes, Shake, Telão & Celular)
+- [x] In `TECH_BATTLE_SPEC_PROMPT.md`, enrich Section 🎨 Design System & UI Experience and Section 4 (Prompt Mestre) with explicit instructions for micro-interactions, canvas-confetti celebratory particles on majority win, screen shake effect on loss, stage winner cannon animations, ambient mesh background, and visual feedback states.
+- [x] In `public/css/style.css`, create keyframe animations for `@keyframes screenShake`, `@keyframes winnerPulse`, `@keyframes laserBeamGlow`, `@keyframes floatCard`, `@keyframes timerUrgentPulse`, and winner/loser feedback card styling.
+- [x] In `public/index.html` and `public/js/participant.js`:
+  - Import `canvas-confetti` library.
+  - Implement dynamic outcome detection on `REVEAL`: if user voted for the winning technology, trigger multi-burst Google-colored confetti, victory card with glowing badge and haptic vibration (`navigator.vibrate([120, 60, 120])`); if voted for the minority technology, trigger subtle screen shake effect (`screenShake`), consoling badge ("Você votou com a minoria audaciosa! 🐺") and light vibration (`navigator.vibrate(200)`).
+  - Add ripple effect and scale feedback on 1-tap voting.
+- [x] In `public/screen.html` and `public/js/screen.js`:
+  - Implement directional confetti blast on stage reveal: shooting from left in Google Blue if Opção A wins, or shooting from right in Google Red if Opção B wins.
+  - Add pulsating laser crown and glow around the winning option card, with a subtle shake/dim on the losing side.
+  - Add urgent pulsing scale + red neon glow to the 30s timer when remaining seconds <= 5s.
+  - Enhance final Oscar ceremony with multi-burst fireworks confetti.
+- [x] Run full test suite (`npm test`), verify behavior, and commit atomically with conventional prefixes.
+
 ---
 
 ## Autocrítica do Plano (Critique)
 
-1. **Início da Primeira Rodada vs. Rodadas Subsequentes:**
-   - *Mitigação:* Quando o jogo é iniciado pela primeira vez (ou após reset), o estado é `LOBBY`. O botão de início deve ativar a Rodada 1 diretamente em `ACTIVE`. A partir daí, o apresentador só alterna entre "Fechar Votação" (ao discutir o resultado) e "Próxima Rodada" (que já abre a rodada seguinte diretamente em `ACTIVE` com o timer de 30s).
-2. **Última Rodada (Rodada 10):**
-   - *Mitigação:* Se o apresentador estiver na última rodada (Rodada 10) e fechar a votação, ao clicar em avançar, o sistema detecta que acabaram as rodadas e transiciona com segurança para `FINISHED`, liberando o pódio do "Oscar dos Devs".
+1. **Impacto de Performance e Mobile Browsers:**
+   - *Mitigação:* Usar `canvas-confetti` via CDN (ou biblioteca já instalada/em cache) com número controlado de partículas (`particleCount: 50-80` em mobile, `120-180` no telão) para não travar navegadores mobile mais modestos.
+   - O efeito de `screenShake` deve ser rápido (duração de `0.4s` a `0.5s`) com `transform: translate3d(...)` acelerado por hardware (GPU).
+2. **Navegadores sem suporte a `navigator.vibrate` (como iOS Safari):**
+   - *Mitigação:* Sempre proteger chamadas com `if ('vibrate' in navigator) { navigator.vibrate(...); }`, garantindo que dispositivos sem API de vibração não gerem exceções.
+3. **Prevenção de Disparo Múltiplo de Confetes:**
+   - *Mitigação:* Controlar o disparo de confetes na revelação com uma flag booleana por rodada (`this.lastRevealedRoundId === state.currentRound.id`), disparando os efeitos visuais exatamente uma vez ao entrar no status `REVEAL`.

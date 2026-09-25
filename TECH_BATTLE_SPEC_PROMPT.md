@@ -58,9 +58,16 @@ Para garantir uma estética visual moderna, profissional e memorável no palco d
 - **Fonte Principal (Sans):** `'Google Sans', 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`.
 - **Fonte Monospaçada (Contadores & Timers):** `'Roboto Mono', 'SF Mono', monospace` com pesos destacados (`700` e `800`).
 
-### 4. Micro-interações & Física de Animação
+### 4. Micro-interações, Animações & Feedback Visual de Alto Impacto
+- **Partículas de Confete (`canvas-confetti`):**
+  * **No Smartphone do Participante:** Quando o usuário votou na opção que venceu a rodada (maioria dos votos no `REVEAL`), disparar uma chuva festiva de confetes nas 4 cores do Google (`#4285F4`, `#EA4335`, `#FBBC04`, `#34A853`), acompanhada de vibração háptica comemorativa (`navigator.vibrate([120, 60, 120])`) e badge com glow dourado.
+  * **No Telão do Palco:** A cada rodada revelada, disparar um canhão lateral de confetes emanando do lado da opção vencedora (canhão azul à esquerda se Opção A vencer; canhão vermelho à direita se Opção B vencer). Na Cerimônia Final (Oscar dos Devs), disparar uma salva de fogos de artifício em cascata por toda a tela.
+- **Efeito de Vibração da Tela (Screen Shake Effect):**
+  * **No Smartphone do Participante:** Se o participante votou na opção que perdeu a rodada (minoria), aplicar uma animação CSS acelerada de tremor na tela (`@keyframes screenShake`, duração de ~400ms), alertando com vibração rápida no aparelho (`navigator.vibrate(200)`) e exibindo um badge bem-humorado (*"Você votou com a minoria audaciosa! 🐺"*).
+  * **No Telão do Palco:** O card da opção perdedora sofre um leve tremor com redução de opacidade e escala (`opacity: 0.6`, `transform: scale(0.97)`), enquanto o card vencedor salta para a frente com coroa luminosa (`@keyframes winnerBounce`) e borda neon dourada.
+- **Micro-interações no Toque (1-Tap):** Efeito tátil de pressão imediata (`transform: scale(0.96)` ao toque), efeito de onda/ripple, feedback vibratório (`navigator.vibrate([40])`) e badge animado de confirmação em milissegundos.
+- **Alerta de Timer Crítico no Telão:** Quando o timer regressivo atingir `<= 5s`, acionar uma animação pulsante urgente em vermelho néon (`@keyframes timerUrgentPulse`) para criar tensão cênica no auditório.
 - **Cabo de Guerra:** Transição suave da barra com curva do Material Design: `transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1)`. Linha divisória central com feixe de luz vertical néon (`box-shadow: 0 0 15px rgba(255, 255, 255, 0.8)`).
-- **Botões Mobile 1-Tap:** Efeito tátil de pressão imediata (`transform: scale(0.97)` ao toque), feedback vibratório (`navigator.vibrate([40])`) e badge animado de confirmação em milissegundos.
 - **Pills de Status:** Chips com ponto de luz pulsante (CSS `@keyframes pulseGlow`).
 
 ---
@@ -171,12 +178,18 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
      * Fita das 4 Cores do Google: Borda decorativa superior com linear-gradient(90deg, #4285F4, #EA4335, #FBBC04, #34A853) no cabeçalho e logo.
      * Tipografia: 'Google Sans', 'Outfit', 'Inter' para textos e títulos; 'Roboto Mono' para timers, votos e porcentagens.
      * Superfícies: Fundo preto profundo (#0b0e14) com brilho radial sutil, cards elevados em #161b26 com bordas translúcidas de 1px e backdrop-filter (glassmorphism).
-     * Cabo de Guerra de Alto Impacto: Transição suave com cubic-bezier(0.4, 0, 0.2, 1) e linha divisória central com feixe de luz néon.
+      * Cabo de Guerra de Alto Impacto: Transição suave com cubic-bezier(0.4, 0, 0.2, 1) e linha divisória central com feixe de luz néon.
+      * Microinterações & Efeitos Visuais Cinematográficos: Integração com 'canvas-confetti' para celebrações dinâmicas, animação CSS @keyframes screenShake para efeito de tremor ao errar e pulsos de alerta em timers críticos (<= 5s).
 
 4. REQUISITOS DAS TELAS (FRONTEND MODERNO & RESPONSIVO):
-   - Telão (/screen.html): Exibe QR Code com moldura iluminada no estilo Google Developer, contador de devs conectados, barra animada de "cabo de guerra" que oscila em tempo real com os votos, timer regressivo de 30s (que pausa imediatamente no fechamento e permanece ocioso se zerar) e o pódio final dos troféus com confetes. Ao fechar a votação, o telão mantém a exibição do resultado da rodada e só muda quando o admin clicar em "Próxima Rodada". Ao clicar em "Próxima Rodada", o telão atualiza imediatamente para o novo confronto, dispara o cronômetro de 30s e libera a votação instantaneamente.
+   - Telão (/screen.html): Exibe QR Code com moldura iluminada no estilo Google Developer, contador de devs conectados, barra animada de "cabo de guerra" que oscila em tempo real com os votos, timer regressivo de 30s (com pulso urgente em <= 5s, pausa ao fechar e ocioso se zerar) e o pódio final dos troféus com cascata de confetes.
+     * Celebração de Rodada no Telão: Ao fechar a rodada, dispara um canhão de confetes direcional com 'canvas-confetti' partindo da lateral da opção vencedora (azul à esquerda ou vermelho à direita). O card vencedor recebe animação de destaque com coroa iluminada (@keyframes winnerBounce), enquanto o perdedor sofre um leve tremor com opacidade reduzida.
+     * Avanço Contínuo: Ao clicar em "Próxima Rodada", o telão atualiza imediatamente para o novo confronto, dispara o cronômetro de 30s e libera a votação instantaneamente.
      * Coerência de Votos em Tempo Real: Com 0 votos exiba 0% (0 votos) e mantenha a barra no centro (50%/50%). Conforme os votos chegam, a barra e os textos refletem as porcentagens reais (ex: 0% e 100%, 33% e 67%). NUNCA use 'data.percentA || 50' no frontend (pois '0 || 50' vira 50 em JS); use sempre verificação estrita ('data.percentA !== undefined ? Number(data.percentA) : 0').
-   - Participante Mobile (/): Tela moderna e limpa para digitar apelido, 2 botões grandes coloridos por rodada com elevação Material e micro-interação ao toque (scale 0.97), haptic feedback no clique, bloqueio de voto duplo, registro do tempo de resposta (ms) e exibição das porcentagens reais na revelação.
+   - Participante Mobile (/): Tela moderna e limpa para digitar apelido, 2 botões grandes coloridos por rodada com elevação Material e micro-interação ao toque (scale 0.96, ripple effect), haptic feedback no clique, bloqueio de voto duplo e registro do tempo de resposta (ms).
+     * Feedback Visual Dramático na Revelação (REVEAL):
+       - Se o usuário votou na opção vencedora (maioria): dispara explosão festiva de confetes na tela usando 'canvas-confetti', badge comemorativo iluminado e vibração de vitória no aparelho.
+       - Se o usuário votou na opção perdedora (minoria): aplica efeito de tremor na tela inteira (screen shake CSS via @keyframes screenShake) com vibração e badge bem-humorado de minoria audaciosa.
      * Gestão de Sessão & Desconexão: Botão "Sair / Trocar Nickname" no cabeçalho e na tela de espera (ocultado durante ACTIVE para evitar toques acidentais). Rastreie um sessionId no servidor (regenerado ao reiniciar o jogo no admin); clientes sincronizam via polling e efetuam auto-logout ao detectar sessionId alterado, retornando à tela de inserção de nome.
    - Painel do Apresentador (/admin.html): Controle com layout inspirado no Google Cloud Console, protegido por senha fixa ("techadmin"). Ao clicar em "Próxima Rodada", o sistema avança a rodada, inicia o timer regressivo de 30s e abre a votação de uma só vez (sem necessidade de um botão avulso redundante para abrir votação a cada rodada). Rotas /api/admin/* protegidas com validação de senha.
 

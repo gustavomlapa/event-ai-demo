@@ -7,6 +7,7 @@ class StageScreen {
     this.timerInterval = null;
     this.currentStatus = null;
     this.currentRoundId = null;
+    this.lastRevealedRoundId = null;
     this.hasTriggeredConfetti = false;
 
     this.initElements();
@@ -30,7 +31,13 @@ class StageScreen {
     this.stageRoundCategory = document.getElementById('stageRoundCategory');
     this.stageRoundTitle = document.getElementById('stageRoundTitle');
     this.stageRoundContext = document.getElementById('stageRoundContext');
+    this.stageTimerBox = document.getElementById('stageTimerBox');
     this.stageTimerSeconds = document.getElementById('stageTimerSeconds');
+
+    this.stageCardA = document.getElementById('stageCardA');
+    this.stageCardB = document.getElementById('stageCardB');
+    this.stageWinnerCrownA = document.getElementById('stageWinnerCrownA');
+    this.stageWinnerCrownB = document.getElementById('stageWinnerCrownB');
 
     this.stageOptionAName = document.getElementById('stageOptionAName');
     this.stageOptionAPercent = document.getElementById('stageOptionAPercent');
@@ -169,8 +176,14 @@ class StageScreen {
       this.tugBarB.style.width = `${percentB}%`;
     }
 
-    // Gerenciamento do Timer de 30s
+    // Gerenciamento do Timer de 30s & Efeitos Visuais
     if (state.status === 'ACTIVE') {
+      // Limpa destaques da rodada anterior
+      this.stageCardA.classList.remove('stage-card-winner', 'stage-card-loser');
+      this.stageCardB.classList.remove('stage-card-winner', 'stage-card-loser');
+      this.stageWinnerCrownA.classList.add('hidden');
+      this.stageWinnerCrownB.classList.add('hidden');
+
       const now = Date.now();
       const startTime = state.roundStartTime || now;
       const elapsedSeconds = Math.floor((now - startTime) / 1000);
@@ -179,26 +192,80 @@ class StageScreen {
 
       if (remainingSeconds > 0) {
         this.stageTimerSeconds.textContent = `${remainingSeconds}s`;
-        this.stageTimerSeconds.style.color = remainingSeconds <= 5 ? '#ef4444' : '#fff';
+        if (remainingSeconds <= 5) {
+          // Timer Urgente: Pulso crítico em vermelho néon
+          this.stageTimerBox.classList.add('timer-urgent');
+          this.stageTimerSeconds.style.color = '#ff9999';
+        } else {
+          this.stageTimerBox.classList.remove('timer-urgent');
+          this.stageTimerSeconds.style.color = '#fff';
+        }
       } else {
         // Ao terminar o timer não faz nada e espera a votação ser fechada pelo admin
+        this.stageTimerBox.classList.remove('timer-urgent');
         this.stageTimerSeconds.textContent = '0s (Aguardando Encerramento)';
         this.stageTimerSeconds.style.color = '#ef4444';
       }
     } else if (state.status === 'REVEAL') {
       // Se for fechada antes (ou ao fechar), para o timer imediatamente
+      this.stageTimerBox.classList.remove('timer-urgent');
       const pausedSec = this.savedPausedSeconds !== undefined ? this.savedPausedSeconds : 0;
       this.stageTimerSeconds.textContent = `Votação Fechada (Pausado em ${pausedSec}s)`;
-      this.stageTimerSeconds.style.color = '#10b981';
+      this.stageTimerSeconds.style.color = '#34A853';
 
-      // Destaque visual da opção vencedora
+      const isFirstReveal = this.lastRevealedRoundId !== round.id;
+      if (isFirstReveal) {
+        this.lastRevealedRoundId = round.id;
+      }
+
+      // Destaque cênico da opção vencedora e canhão lateral de confetes
       if (percentA > percentB) {
         this.stageOptionAPercent.textContent = `👑 ${percentA}%`;
+        this.stageCardA.classList.add('stage-card-winner');
+        this.stageCardA.classList.remove('stage-card-loser');
+        this.stageWinnerCrownA.classList.remove('hidden');
+
+        this.stageCardB.classList.add('stage-card-loser');
+        this.stageCardB.classList.remove('stage-card-winner');
+        this.stageWinnerCrownB.classList.add('hidden');
+
+        // Canhão direcional disparando da esquerda em Google Blue
+        if (isFirstReveal && window.confetti) {
+          window.confetti({
+            particleCount: 100,
+            angle: 60,
+            spread: 70,
+            origin: { x: 0.15, y: 0.65 },
+            colors: ['#4285F4', '#8ab4f8', '#ffffff', '#FBBC04']
+          });
+        }
       } else if (percentB > percentA) {
         this.stageOptionBPercent.textContent = `👑 ${percentB}%`;
+        this.stageCardB.classList.add('stage-card-winner');
+        this.stageCardB.classList.remove('stage-card-loser');
+        this.stageWinnerCrownB.classList.remove('hidden');
+
+        this.stageCardA.classList.add('stage-card-loser');
+        this.stageCardA.classList.remove('stage-card-winner');
+        this.stageWinnerCrownA.classList.add('hidden');
+
+        // Canhão direcional disparando da direita em Google Red
+        if (isFirstReveal && window.confetti) {
+          window.confetti({
+            particleCount: 100,
+            angle: 120,
+            spread: 70,
+            origin: { x: 0.85, y: 0.65 },
+            colors: ['#EA4335', '#f28b82', '#ffffff', '#FBBC04']
+          });
+        }
       } else if (totalVotes > 0) {
         this.stageOptionAPercent.textContent = `🤝 ${percentA}%`;
         this.stageOptionBPercent.textContent = `🤝 ${percentB}%`;
+        this.stageCardA.classList.remove('stage-card-winner', 'stage-card-loser');
+        this.stageCardB.classList.remove('stage-card-winner', 'stage-card-loser');
+        this.stageWinnerCrownA.classList.add('hidden');
+        this.stageWinnerCrownB.classList.add('hidden');
       }
     }
   }
@@ -207,17 +274,41 @@ class StageScreen {
     if (this.hasTriggeredConfetti) return;
     this.hasTriggeredConfetti = true;
 
-    // Dispara confetes comemorativos
+    // Grande Salva de Confetes em Cascata (Efeito Fogos de Artifício nas 4 Cores do Google)
     if (window.confetti) {
+      const duration = 4.5 * 1000;
+      const animationEnd = Date.now() + duration;
+      const googleColors = ['#4285F4', '#EA4335', '#FBBC04', '#34A853'];
+
+      const frame = () => {
+        window.confetti({
+          particleCount: 6,
+          angle: 60,
+          spread: 60,
+          origin: { x: 0, y: 0.7 },
+          colors: googleColors
+        });
+        window.confetti({
+          particleCount: 6,
+          angle: 120,
+          spread: 60,
+          origin: { x: 1, y: 0.7 },
+          colors: googleColors
+        });
+
+        if (Date.now() < animationEnd) {
+          requestAnimationFrame(frame);
+        }
+      };
+      frame();
+
+      // Explosão central
       window.confetti({
-        particleCount: 120,
-        spread: 90,
-        origin: { y: 0.6 }
+        particleCount: 140,
+        spread: 100,
+        origin: { y: 0.5 },
+        colors: googleColors
       });
-      setTimeout(() => {
-        window.confetti({ particleCount: 80, angle: 60, spread: 55, origin: { x: 0 } });
-        window.confetti({ particleCount: 80, angle: 120, spread: 55, origin: { x: 1 } });
-      }, 500);
     }
 
     try {
