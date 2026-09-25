@@ -87,7 +87,38 @@ router.get('/qr', async (req, res) => {
   }
 });
 
-// --- Rotas Administrativas ---
+// Rota pública de troféus (para o telão e participantes consultarem no fim do jogo)
+router.get('/trophies', (req, res) => {
+  const votes = gameService.getAllVotesForSession();
+  const trophies = calculateTrophies(votes, gameService.rounds);
+  res.json(trophies);
+});
+
+// --- Autenticação Administrativa ---
+
+const config = require('../config');
+
+// Endpoint de validação de senha do painel de admin
+router.post('/admin/auth', (req, res) => {
+  const { password } = req.body || {};
+  if (password === config.adminPassword) {
+    return res.json({ authenticated: true });
+  }
+  return res.status(401).json({ error: 'Senha incorreta' });
+});
+
+// Middleware de proteção para todas as rotas administrativas seguintes
+function requireAdminAuth(req, res, next) {
+  const password = req.headers['x-admin-password'] || req.query.key || (req.body && req.body.adminPassword);
+  if (!password || password !== config.adminPassword) {
+    return res.status(401).json({ error: 'Senha de admin inválida ou não fornecida' });
+  }
+  next();
+}
+
+router.use('/admin', requireAdminAuth);
+
+// --- Rotas Administrativas Protegidas ---
 
 router.get('/admin/rounds', (req, res) => {
   res.json({ rounds: gameService.rounds });

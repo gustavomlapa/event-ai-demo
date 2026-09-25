@@ -35,10 +35,40 @@ describe('API Integration Tests', () => {
     expect(res.body).toHaveProperty('participantId');
   });
 
-  test('Fluxo completo da rodada: Iniciar -> Votar -> Fechar -> Troféus -> Reset', async () => {
+  test('POST /api/admin/auth deve validar senha corretamente', async () => {
+    const failRes = await request(app)
+      .post('/api/admin/auth')
+      .send({ password: 'wrongpassword' });
+    expect(failRes.status).toBe(401);
+
+    const successRes = await request(app)
+      .post('/api/admin/auth')
+      .send({ password: 'techadmin' });
+    expect(successRes.status).toBe(200);
+    expect(successRes.body.authenticated).toBe(true);
+  });
+
+  test('Rotas /api/admin/* devem bloquear acesso não autenticado com 401', async () => {
+    const unauthRes = await request(app)
+      .post('/api/admin/start-round')
+      .send({ roundId: 1 });
+    expect(unauthRes.status).toBe(401);
+    expect(unauthRes.body.error).toMatch(/Senha de admin inválida/);
+
+    const wrongPassRes = await request(app)
+      .post('/api/admin/start-round')
+      .set('x-admin-password', 'wrong')
+      .send({ roundId: 1 });
+    expect(wrongPassRes.status).toBe(401);
+  });
+
+  test('Fluxo completo da rodada: Iniciar -> Votar -> Fechar -> Troféus -> Reset com autenticação', async () => {
+    const adminHeader = { 'x-admin-password': 'techadmin' };
+
     // 1. Iniciar rodada 1
     const startRes = await request(app)
       .post('/api/admin/start-round')
+      .set(adminHeader)
       .send({ roundId: 1 });
     expect(startRes.status).toBe(200);
     expect(startRes.body.status).toBe('ACTIVE');
@@ -88,18 +118,24 @@ describe('API Integration Tests', () => {
     expect(voteDuplicate.status).toBe(400);
 
     // 5. Fechar rodada
-    const closeRes = await request(app).post('/api/admin/close-round');
+    const closeRes = await request(app)
+      .post('/api/admin/close-round')
+      .set(adminHeader);
     expect(closeRes.status).toBe(200);
     expect(closeRes.body.status).toBe('REVEAL');
 
     // 6. Consultar troféus
-    const trophyRes = await request(app).get('/api/admin/trophies');
+    const trophyRes = await request(app)
+      .get('/api/admin/trophies')
+      .set(adminHeader);
     expect(trophyRes.status).toBe(200);
     expect(trophyRes.body.theFlash.nickname).toBe('Alice'); // 250ms < 450ms
     expect(trophyRes.body.thePhilosopher.nickname).toBe('Bob'); // 450ms > 250ms
 
     // 7. Reset da partida
-    const resetRes = await request(app).post('/api/admin/reset');
+    const resetRes = await request(app)
+      .post('/api/admin/reset')
+      .set(adminHeader);
     expect(resetRes.status).toBe(200);
     expect(resetRes.body.status).toBe('LOBBY');
   });

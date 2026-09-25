@@ -10,6 +10,7 @@ const config = {
   serviceName: process.env.SERVICE_NAME || 'tech-battle-royale',
   firestoreDatabaseId: process.env.FIRESTORE_DATABASE_ID || '(default)',
   useLocalMock: process.env.USE_LOCAL_MOCK === 'true' || !process.env.GCP_PROJECT_ID || process.env.GCP_PROJECT_ID === 'your-gcp-project-id',
+  adminPassword: process.env.ADMIN_PASSWORD || 'techadmin'
 };
 
 module.exports = config;
