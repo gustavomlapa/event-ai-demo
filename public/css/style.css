@@ -479,25 +479,15 @@ body {
 }
 .tug-tick-75 { left: 75%; }
 
-/* Animações dos Feixes de Energia Direcionais */
-@keyframes energyFlowRight {
-  0% { background-position: 0 0; }
-  100% { background-position: 48px 0; }
-}
-
-@keyframes energyFlowLeft {
-  0% { background-position: 0 0; }
-  100% { background-position: -48px 0; }
-}
-
+/* Animação de Pulso do Raio Divisor (Clash Marker) */
 @keyframes clashPulse {
   0%, 100% { 
     transform: translate(-50%, -50%) scale(1);
-    box-shadow: 0 0 15px #ffffff, 0 0 30px var(--google-yellow), 0 0 45px rgba(66, 133, 244, 0.6);
+    box-shadow: 0 0 15px #ffffff, 0 0 25px var(--google-yellow), 0 0 35px rgba(66, 133, 244, 0.5);
   }
   50% { 
-    transform: translate(-50%, -50%) scale(1.15);
-    box-shadow: 0 0 25px #ffffff, 0 0 45px var(--google-yellow), 0 0 65px rgba(234, 67, 53, 0.8);
+    transform: translate(-50%, -50%) scale(1.14);
+    box-shadow: 0 0 22px #ffffff, 0 0 38px var(--google-yellow), 0 0 55px rgba(234, 67, 53, 0.7);
   }
 }
 
@@ -515,84 +505,75 @@ body {
   }
 }
 
-/* Barra da Opção A (Google Blue) com Feixes de Luz para Direita */
+/* Barra da Opção A (Google Blue) - Design Limpo, Sólido e Elegante */
 .tug-bar-a {
   height: 100%;
-  background-color: #1a73e8;
-  background-image: 
-    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.18) 0px, rgba(255, 255, 255, 0.18) 14px, transparent 14px, transparent 28px),
-    linear-gradient(90deg, #1557bf 0%, #1a73e8 45%, #4285F4 85%, #8ab4f8 100%);
-  background-size: 48px 100%, 100% 100%;
-  animation: energyFlowRight 1.4s linear infinite;
-  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.25);
+  background: linear-gradient(90deg, #1557bf 0%, #1a73e8 50%, #4285F4 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -2px 6px rgba(0, 0, 0, 0.3);
   position: relative;
   will-change: width;
+  transition: filter 0.3s ease;
 }
 
-/* Barra da Opção B (Google Red) com Feixes de Luz para Esquerda */
+/* Barra da Opção B (Google Red) - Design Limpo, Sólido e Elegante */
 .tug-bar-b {
   height: 100%;
-  background-color: #d93025;
-  background-image: 
-    repeating-linear-gradient(65deg, rgba(255, 255, 255, 0.18) 0px, rgba(255, 255, 255, 0.18) 14px, transparent 14px, transparent 28px),
-    linear-gradient(270deg, #b31412 0%, #d93025 45%, #EA4335 85%, #f28b82 100%);
-  background-size: 48px 100%, 100% 100%;
-  animation: energyFlowLeft 1.4s linear infinite;
-  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.25);
+  background: linear-gradient(270deg, #b31412 0%, #d93025 50%, #EA4335 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -2px 6px rgba(0, 0, 0, 0.3);
   position: relative;
   will-change: width;
+  transition: filter 0.3s ease;
 }
 
-/* Estados de Aceleração e Ímpeto Dinâmico (Momentum) */
+/* Estados Sutis de Avanço e Domínio */
 .tug-bar-track.pushing-a .tug-bar-a {
-  animation-duration: 0.65s;
-  box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.5), 0 0 30px rgba(66, 133, 244, 0.6);
-  filter: brightness(1.2);
+  filter: brightness(1.18);
+  box-shadow: inset 0 0 25px rgba(255, 255, 255, 0.4), 0 0 25px rgba(66, 133, 244, 0.5);
 }
 
 .tug-bar-track.pushing-b .tug-bar-b {
-  animation-duration: 0.65s;
-  box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.5), 0 0 30px rgba(234, 67, 53, 0.6);
-  filter: brightness(1.2);
+  filter: brightness(1.18);
+  box-shadow: inset 0 0 25px rgba(255, 255, 255, 0.4), 0 0 25px rgba(234, 67, 53, 0.5);
 }
 
-/* Marcador de Choque Dinâmico (Clash Marker) no Ponto de Contato */
+/* Marcador Divisor Central Móvel com Lâmina de Luz (Clash Marker) */
 .tug-clash-marker {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 6px;
+  width: 4px;
   background: #ffffff;
   z-index: 15;
   transform: translateX(-50%);
-  box-shadow: 0 0 16px #ffffff, 0 0 32px var(--google-yellow), 0 0 45px rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 14px #ffffff, 0 0 28px var(--google-yellow), 0 0 40px rgba(255, 255, 255, 0.9);
   pointer-events: none;
   will-change: left;
 }
 
-/* Insígnia Flutuante de Energia no Centro do Marcador */
+/* Insígnia Flutuante com Raio Elétrico no Centro da Divisória */
 .tug-clash-badge {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #111520;
   border: 2px solid #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   z-index: 16;
-  animation: clashPulse 1.2s infinite ease-in-out;
+  animation: clashPulse 1.4s infinite ease-in-out;
   pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
 }
 
 /* Efeito de Conclusão da Rodada (REVEAL) */
 .tug-bar-track.tug-concluded .tug-bar-a,
 .tug-bar-track.tug-concluded .tug-bar-b {
-  animation-play-state: paused;
+  transition: opacity 0.5s ease, filter 0.5s ease;
 }
 
 .tug-bar-track.winner-a .tug-bar-a {

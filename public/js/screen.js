@@ -81,11 +81,11 @@ class StageScreen {
    */
   startAnimationLoop() {
     const updatePhysics = () => {
-      if (this.currentStatus === 'BATTLE') {
+      if (this.currentStatus === 'ACTIVE' || this.currentStatus === 'REVEAL') {
         const diff = this.targetPercentA - this.currentPercentA;
         if (Math.abs(diff) > 0.04) {
-          // Fator de amortecimento 0.08 para sensação física de cabo de guerra
-          this.currentPercentA += diff * 0.08;
+          // Deslocamento suave e contínuo com sensação orgânica (lerp 0.10)
+          this.currentPercentA += diff * 0.10;
           this.applyBarPositions(this.currentPercentA);
         } else if (this.currentPercentA !== this.targetPercentA) {
           this.currentPercentA = this.targetPercentA;
