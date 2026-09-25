@@ -88,11 +88,26 @@
             </div>
           </div>
 
-          <!-- Barra do Cabo de Guerra -->
-          <div class="tug-bar-track">
-            <div class="tug-bar-center-marker"></div>
+          <!-- Barra do Cabo de Guerra Vivo -->
+          <div id="tugBarTrack" class="tug-bar-track">
+            <!-- Ticks de Referência 25%, 50%, 75% -->
+            <div class="tug-track-ticks">
+              <div class="tug-tick tug-tick-25"></div>
+              <div class="tug-tick tug-tick-50"></div>
+              <div class="tug-tick tug-tick-75"></div>
+            </div>
+
+            <!-- Barras Dinâmicas com Feixes Direcionais -->
             <div id="tugBarA" class="tug-bar-a" style="width: 50%;"></div>
             <div id="tugBarB" class="tug-bar-b" style="width: 50%;"></div>
+
+            <!-- Marcador de Choque Móvel (Clash Marker) -->
+            <div id="tugClashMarker" class="tug-clash-marker" style="left: 50%;">
+              <div class="tug-clash-badge">⚡</div>
+            </div>
+
+            <!-- Camada de Onda de Choque Luminosa (Shockwave) -->
+            <div id="tugShockwave" class="tug-shockwave"></div>
           </div>
         </div>
       </section>

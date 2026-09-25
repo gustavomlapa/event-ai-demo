@@ -67,7 +67,11 @@ Para garantir uma estética visual moderna, profissional e memorável no palco d
   * **No Telão do Palco:** O card da opção perdedora sofre um leve tremor com redução de opacidade e escala (`opacity: 0.6`, `transform: scale(0.97)`), enquanto o card vencedor salta para a frente com coroa luminosa (`@keyframes winnerBounce`) e borda neon dourada.
 - **Micro-interações no Toque (1-Tap):** Efeito tátil de pressão imediata (`transform: scale(0.96)` ao toque), efeito de onda/ripple, feedback vibratório (`navigator.vibrate([40])`) e badge animado de confirmação em milissegundos.
 - **Alerta de Timer Crítico no Telão:** Quando o timer regressivo atingir `<= 5s`, acionar uma animação pulsante urgente em vermelho néon (`@keyframes timerUrgentPulse`) para criar tensão cênica no auditório.
-- **Cabo de Guerra:** Transição suave da barra com curva do Material Design: `transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1)`. Linha divisória central com feixe de luz vertical néon (`box-shadow: 0 0 15px rgba(255, 255, 255, 0.8)`).
+- **Cabo de Guerra Vivo com Física & Fluxo de Energia:**
+  * **Interpolação Suave (Lerp via `requestAnimationFrame`):** Em vez de saltos bruscos a cada atualização de rede, o cabo de guerra desliza suavemente com peso e inércia física, acompanhando o caminho contínuo dos votos em tempo real.
+  * **Marcador de Choque Móvel (*Clash Marker*):** Um nodo de energia elétrico posicionado exatamente na fronteira móvel (`left: ${percentA}%`), com feixe de luz vertical néon e diamante pulsante no ponto de atrito entre as duas tecnologias.
+  * **Fluxo de Energia Direcional:** Feixes e ranhuras de luz animados fluindo para a direita na Opção A (`@keyframes energyFlowRight`) e para a esquerda na Opção B (`@keyframes energyFlowLeft`), acelerando e brilhando intensamente no lado que estiver conquistando votos no momento.
+  * **Conclusão Cênica no Final (*REVEAL*):** Ao fechar a votação, disparo de uma onda de choque luminosa (*shockwave sweep*) ao longo da barra, travamento triunfal do marcador na marca final definitiva e pulso dourado comemorativo no lado vencedor.
 - **Pills de Status:** Chips com ponto de luz pulsante (CSS `@keyframes pulseGlow`).
 
 ---
@@ -178,12 +182,12 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
      * Fita das 4 Cores do Google: Borda decorativa superior com linear-gradient(90deg, #4285F4, #EA4335, #FBBC04, #34A853) no cabeçalho e logo.
      * Tipografia: 'Google Sans', 'Outfit', 'Inter' para textos e títulos; 'Roboto Mono' para timers, votos e porcentagens.
      * Superfícies: Fundo preto profundo (#0b0e14) com brilho radial sutil, cards elevados em #161b26 com bordas translúcidas de 1px e backdrop-filter (glassmorphism).
-      * Cabo de Guerra de Alto Impacto: Transição suave com cubic-bezier(0.4, 0, 0.2, 1) e linha divisória central com feixe de luz néon.
+      * Cabo de Guerra Vivo com Física & Fluxo de Energia: Interpolação contínua (lerp via requestAnimationFrame) para movimento orgânico com inércia, nodo de choque móvel elétrico (Clash Marker no ponto exato de contato), feixes de energia direcionais indicando o lado em avanço e onda de choque luminosa (shockwave) na conclusão final ao fechar a votação.
       * Microinterações & Efeitos Visuais Cinematográficos: Integração com 'canvas-confetti' para celebrações dinâmicas, animação CSS @keyframes screenShake para efeito de tremor ao errar e pulsos de alerta em timers críticos (<= 5s).
 
 4. REQUISITOS DAS TELAS (FRONTEND MODERNO & RESPONSIVO):
-   - Telão (/screen.html): Exibe QR Code com moldura iluminada no estilo Google Developer, contador de devs conectados, barra animada de "cabo de guerra" que oscila em tempo real com os votos, timer regressivo de 30s (com pulso urgente em <= 5s, pausa ao fechar e ocioso se zerar) e o pódio final dos troféus com cascata de confetes.
-     * Celebração de Rodada no Telão: Ao fechar a rodada, dispara um canhão de confetes direcional com 'canvas-confetti' partindo da lateral da opção vencedora (azul à esquerda ou vermelho à direita). O card vencedor recebe animação de destaque com coroa iluminada (@keyframes winnerBounce), enquanto o perdedor sofre um leve tremor com opacidade reduzida.
+   - Telão (/screen.html): Exibe QR Code com moldura iluminada no estilo Google Developer, contador de devs conectados, barra animada de "cabo de guerra vivo" com nodo de choque móvel, feixes de energia em fluxo direcional e física fluida por lerp, timer regressivo de 30s (com pulso urgente em <= 5s, pausa ao fechar e ocioso se zerar) e o pódio final dos troféus com cascata de confetes.
+     * Conclusão Épica da Rodada no Telão: Ao fechar a rodada, dispara onda de choque na barra de cabo de guerra com travamento no percentual definitivo, canhão lateral de confetes emanando do lado vencedor (azul à esquerda ou vermelho à direita), coroa iluminada no card vencedor e leve tremor no perdedor.
      * Avanço Contínuo: Ao clicar em "Próxima Rodada", o telão atualiza imediatamente para o novo confronto, dispara o cronômetro de 30s e libera a votação instantaneamente.
      * Coerência de Votos em Tempo Real: Com 0 votos exiba 0% (0 votos) e mantenha a barra no centro (50%/50%). Conforme os votos chegam, a barra e os textos refletem as porcentagens reais (ex: 0% e 100%, 33% e 67%). NUNCA use 'data.percentA || 50' no frontend (pois '0 || 50' vira 50 em JS); use sempre verificação estrita ('data.percentA !== undefined ? Number(data.percentA) : 0').
    - Participante Mobile (/): Tela moderna e limpa para digitar apelido, 2 botões grandes coloridos por rodada com elevação Material e micro-interação ao toque (scale 0.96, ripple effect), haptic feedback no clique, bloqueio de voto duplo e registro do tempo de resposta (ms).

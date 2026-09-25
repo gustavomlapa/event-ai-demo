@@ -444,40 +444,190 @@ body {
 }
 
 .tug-bar-track {
-  height: 64px;
-  background: #111520;
+  height: 68px;
+  background: #090c13;
   border-radius: 9999px;
   display: flex;
   overflow: hidden;
   position: relative;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75), inset 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
-.tug-bar-center-marker {
+/* Marcações de Referência na Pista (25%, 50%, 75%) */
+.tug-track-ticks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.tug-tick {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 50%;
-  width: 4px;
-  background: #ffffff;
-  z-index: 10;
-  transform: translateX(-50%);
-  box-shadow: 0 0 16px #ffffff, 0 0 32px var(--google-blue);
+  width: 1px;
+  background: rgba(255, 255, 255, 0.18);
 }
 
+.tug-tick-25 { left: 25%; }
+.tug-tick-50 { 
+  left: 50%; 
+  width: 2px;
+  background: rgba(255, 255, 255, 0.35);
+  border-left: 1px dashed rgba(255, 255, 255, 0.4);
+}
+.tug-tick-75 { left: 75%; }
+
+/* Animações dos Feixes de Energia Direcionais */
+@keyframes energyFlowRight {
+  0% { background-position: 0 0; }
+  100% { background-position: 48px 0; }
+}
+
+@keyframes energyFlowLeft {
+  0% { background-position: 0 0; }
+  100% { background-position: -48px 0; }
+}
+
+@keyframes clashPulse {
+  0%, 100% { 
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 15px #ffffff, 0 0 30px var(--google-yellow), 0 0 45px rgba(66, 133, 244, 0.6);
+  }
+  50% { 
+    transform: translate(-50%, -50%) scale(1.15);
+    box-shadow: 0 0 25px #ffffff, 0 0 45px var(--google-yellow), 0 0 65px rgba(234, 67, 53, 0.8);
+  }
+}
+
+@keyframes shockwaveSweep {
+  0% {
+    transform: scaleX(0);
+    opacity: 1;
+  }
+  60% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+/* Barra da Opção A (Google Blue) com Feixes de Luz para Direita */
 .tug-bar-a {
-  background: linear-gradient(90deg, #1a73e8, #4285F4);
   height: 100%;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.2);
+  background-color: #1a73e8;
+  background-image: 
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.18) 0px, rgba(255, 255, 255, 0.18) 14px, transparent 14px, transparent 28px),
+    linear-gradient(90deg, #1557bf 0%, #1a73e8 45%, #4285F4 85%, #8ab4f8 100%);
+  background-size: 48px 100%, 100% 100%;
+  animation: energyFlowRight 1.4s linear infinite;
+  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.25);
+  position: relative;
+  will-change: width;
 }
 
+/* Barra da Opção B (Google Red) com Feixes de Luz para Esquerda */
 .tug-bar-b {
-  background: linear-gradient(90deg, #EA4335, #d93025);
   height: 100%;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.2);
+  background-color: #d93025;
+  background-image: 
+    repeating-linear-gradient(65deg, rgba(255, 255, 255, 0.18) 0px, rgba(255, 255, 255, 0.18) 14px, transparent 14px, transparent 28px),
+    linear-gradient(270deg, #b31412 0%, #d93025 45%, #EA4335 85%, #f28b82 100%);
+  background-size: 48px 100%, 100% 100%;
+  animation: energyFlowLeft 1.4s linear infinite;
+  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.25);
+  position: relative;
+  will-change: width;
+}
+
+/* Estados de Aceleração e Ímpeto Dinâmico (Momentum) */
+.tug-bar-track.pushing-a .tug-bar-a {
+  animation-duration: 0.65s;
+  box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.5), 0 0 30px rgba(66, 133, 244, 0.6);
+  filter: brightness(1.2);
+}
+
+.tug-bar-track.pushing-b .tug-bar-b {
+  animation-duration: 0.65s;
+  box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.5), 0 0 30px rgba(234, 67, 53, 0.6);
+  filter: brightness(1.2);
+}
+
+/* Marcador de Choque Dinâmico (Clash Marker) no Ponto de Contato */
+.tug-clash-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: #ffffff;
+  z-index: 15;
+  transform: translateX(-50%);
+  box-shadow: 0 0 16px #ffffff, 0 0 32px var(--google-yellow), 0 0 45px rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+  will-change: left;
+}
+
+/* Insígnia Flutuante de Energia no Centro do Marcador */
+.tug-clash-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #111520;
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  z-index: 16;
+  animation: clashPulse 1.2s infinite ease-in-out;
+  pointer-events: none;
+}
+
+/* Efeito de Conclusão da Rodada (REVEAL) */
+.tug-bar-track.tug-concluded .tug-bar-a,
+.tug-bar-track.tug-concluded .tug-bar-b {
+  animation-play-state: paused;
+}
+
+.tug-bar-track.winner-a .tug-bar-a {
+  box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.6), 0 0 40px rgba(251, 188, 4, 0.7);
+  filter: brightness(1.25);
+}
+
+.tug-bar-track.winner-a .tug-bar-b {
+  opacity: 0.4;
+  filter: grayscale(0.5);
+}
+
+.tug-bar-track.winner-b .tug-bar-b {
+  box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.6), 0 0 40px rgba(251, 188, 4, 0.7);
+  filter: brightness(1.25);
+}
+
+.tug-bar-track.winner-b .tug-bar-a {
+  opacity: 0.4;
+  filter: grayscale(0.5);
+}
+
+/* Camada de Onda de Choque Luminosa (Shockwave) */
+.tug-shockwave {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+  transform-origin: center;
+  pointer-events: none;
+  z-index: 25;
+  opacity: 0;
+}
+
+.tug-shockwave.active {
+  animation: shockwaveSweep 0.75s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
 }
 
 /* Timer Regressivo do Palco */

@@ -10,8 +10,17 @@ class StageScreen {
     this.lastRevealedRoundId = null;
     this.hasTriggeredConfetti = false;
 
+    // Física e Animação Fluida do Cabo de Guerra
+    this.currentPercentA = 50;
+    this.targetPercentA = 50;
+    this.lastCountA = 0;
+    this.lastCountB = 0;
+    this.momentumTimeout = null;
+    this.isConcluded = false;
+
     this.initElements();
     this.loadQrCode();
+    this.startAnimationLoop();
     this.startPolling();
   }
 
@@ -47,8 +56,12 @@ class StageScreen {
     this.stageOptionBPercent = document.getElementById('stageOptionBPercent');
     this.stageOptionBVotes = document.getElementById('stageOptionBVotes');
 
+    // Cabo de Guerra Vivo & Efeitos Cênicos
+    this.tugBarTrack = document.getElementById('tugBarTrack');
     this.tugBarA = document.getElementById('tugBarA');
     this.tugBarB = document.getElementById('tugBarB');
+    this.tugClashMarker = document.getElementById('tugClashMarker');
+    this.tugShockwave = document.getElementById('tugShockwave');
 
     // Troféus
     this.trophyFlashWinner = document.getElementById('trophyFlashWinner');
@@ -60,6 +73,77 @@ class StageScreen {
     this.trophyVoiceWinner = document.getElementById('trophyVoiceWinner');
     this.trophyVoiceDesc = document.getElementById('trophyVoiceDesc');
     this.stageStackList = document.getElementById('stageStackList');
+  }
+
+  /**
+   * Loop de Física Contínua (Lerp com Inércia via requestAnimationFrame)
+   * Garante que mesmo com dezenas de votos por segundo, a barra deslize suavemente
+   */
+  startAnimationLoop() {
+    const updatePhysics = () => {
+      if (this.currentStatus === 'BATTLE') {
+        const diff = this.targetPercentA - this.currentPercentA;
+        if (Math.abs(diff) > 0.04) {
+          // Fator de amortecimento 0.08 para sensação física de cabo de guerra
+          this.currentPercentA += diff * 0.08;
+          this.applyBarPositions(this.currentPercentA);
+        } else if (this.currentPercentA !== this.targetPercentA) {
+          this.currentPercentA = this.targetPercentA;
+          this.applyBarPositions(this.currentPercentA);
+        }
+      }
+      requestAnimationFrame(updatePhysics);
+    };
+    requestAnimationFrame(updatePhysics);
+  }
+
+  applyBarPositions(percentA) {
+    const clampedA = Math.max(0, Math.min(100, percentA));
+    const clampedB = 100 - clampedA;
+
+    if (this.tugBarA) this.tugBarA.style.width = `${clampedA.toFixed(2)}%`;
+    if (this.tugBarB) this.tugBarB.style.width = `${clampedB.toFixed(2)}%`;
+    if (this.tugClashMarker) this.tugClashMarker.style.left = `${clampedA.toFixed(2)}%`;
+  }
+
+  /**
+   * Dispara o feedback dinâmico de ímpeto (Momentum) acelerando o fluxo luminoso da opção em ascensão
+   */
+  triggerMomentum(className) {
+    if (!this.tugBarTrack) return;
+    this.tugBarTrack.classList.remove('pushing-a', 'pushing-b');
+    this.tugBarTrack.classList.add(className);
+
+    clearTimeout(this.momentumTimeout);
+    this.momentumTimeout = setTimeout(() => {
+      if (this.tugBarTrack) {
+        this.tugBarTrack.classList.remove('pushing-a', 'pushing-b');
+      }
+    }, 1200);
+  }
+
+  /**
+   * Animação de contagem suave para os percentuais na conclusão
+   */
+  animateNumberCounter(element, targetVal, prefix = '', suffix = '%', duration = 650) {
+    const startVal = parseInt(element.textContent.replace(/\D/g, ''), 10) || 0;
+    const startTime = performance.now();
+
+    const step = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Easing out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(startVal + (targetVal - startVal) * eased);
+      element.textContent = `${prefix}${current}${suffix}`;
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        element.textContent = `${prefix}${targetVal}${suffix}`;
+      }
+    };
+    requestAnimationFrame(step);
   }
 
   async loadQrCode() {
@@ -142,7 +226,23 @@ class StageScreen {
     const round = state.currentRound;
     if (!round) return;
 
-    this.currentRoundId = round.id;
+    if (this.currentRoundId !== round.id) {
+      this.currentRoundId = round.id;
+      this.lastRevealedRoundId = null;
+      this.isConcluded = false;
+      this.currentPercentA = 50;
+      this.targetPercentA = 50;
+      this.lastCountA = 0;
+      this.lastCountB = 0;
+      this.applyBarPositions(50);
+      if (this.tugBarTrack) {
+        this.tugBarTrack.classList.remove('tug-concluded', 'winner-a', 'winner-b', 'pushing-a', 'pushing-b');
+      }
+      if (this.tugShockwave) {
+        this.tugShockwave.classList.remove('active');
+      }
+    }
+
     this.stageRoundTitle.textContent = `${round.optionA} vs ${round.optionB}`;
     this.stageRoundCategory.textContent = round.title;
     this.stageRoundContext.textContent = round.context || '';
@@ -151,7 +251,6 @@ class StageScreen {
     this.stageOptionBName.textContent = round.optionB;
 
     // Regra Estrita de Porcentagem (Prevenção ao Bug Falsy de JS)
-    // NUNCA usar 'percentA || 50'! Usar nullish check estrito:
     const totalVotes = Number(state.totalVotes || 0);
     const countA = Number(state.countA || 0);
     const countB = Number(state.countB || 0);
@@ -162,27 +261,45 @@ class StageScreen {
     this.stageOptionAVotes.textContent = `${countA} ${countA === 1 ? 'voto' : 'votos'}`;
     this.stageOptionBVotes.textContent = `${countB} ${countB === 1 ? 'voto' : 'votos'}`;
 
-    if (totalVotes === 0) {
-      // Com 0 votos: exibe 0% para ambos e mantém a barra no centro neutro (50% / 50%)
-      this.stageOptionAPercent.textContent = '0%';
-      this.stageOptionBPercent.textContent = '0%';
-      this.tugBarA.style.width = '50%';
-      this.tugBarB.style.width = '50%';
-    } else {
-      // Com votos: atualiza estritamente as porcentagens reais
-      this.stageOptionAPercent.textContent = `${percentA}%`;
-      this.stageOptionBPercent.textContent = `${percentB}%`;
-      this.tugBarA.style.width = `${percentA}%`;
-      this.tugBarB.style.width = `${percentB}%`;
-    }
-
-    // Gerenciamento do Timer de 30s & Efeitos Visuais
+    // Gerenciamento do Cabo de Guerra, Timer de 30s & Efeitos Visuais
     if (state.status === 'ACTIVE') {
-      // Limpa destaques da rodada anterior
+      // Limpa destaques e estados de conclusão
       this.stageCardA.classList.remove('stage-card-winner', 'stage-card-loser');
       this.stageCardB.classList.remove('stage-card-winner', 'stage-card-loser');
       this.stageWinnerCrownA.classList.add('hidden');
       this.stageWinnerCrownB.classList.add('hidden');
+
+      if (this.tugBarTrack) {
+        this.tugBarTrack.classList.remove('tug-concluded', 'winner-a', 'winner-b');
+      }
+      if (this.tugShockwave) {
+        this.tugShockwave.classList.remove('active');
+      }
+
+      if (totalVotes === 0) {
+        // Com 0 votos: exibe 0% e mantém o alvo físico no centro (50%)
+        this.targetPercentA = 50;
+        this.stageOptionAPercent.textContent = '0%';
+        this.stageOptionBPercent.textContent = '0%';
+      } else {
+        // Atualiza o alvo de interpolação física contínua
+        this.targetPercentA = percentA;
+        this.stageOptionAPercent.textContent = `${percentA}%`;
+        this.stageOptionBPercent.textContent = `${percentB}%`;
+
+        // Detecção de Ímpeto Dinâmico (Momentum ao vivo)
+        const deltaA = countA - this.lastCountA;
+        const deltaB = countB - this.lastCountB;
+
+        if (deltaA > deltaB && deltaA > 0) {
+          this.triggerMomentum('pushing-a');
+        } else if (deltaB > deltaA && deltaB > 0) {
+          this.triggerMomentum('pushing-b');
+        }
+      }
+
+      this.lastCountA = countA;
+      this.lastCountB = countB;
 
       const now = Date.now();
       const startTime = state.roundStartTime || now;
@@ -213,14 +330,33 @@ class StageScreen {
       this.stageTimerSeconds.textContent = `Votação Fechada (Pausado em ${pausedSec}s)`;
       this.stageTimerSeconds.style.color = '#34A853';
 
+      // Trava alvo da física na posição definitiva
+      this.targetPercentA = totalVotes === 0 ? 50 : percentA;
+
       const isFirstReveal = this.lastRevealedRoundId !== round.id;
       if (isFirstReveal) {
         this.lastRevealedRoundId = round.id;
+
+        // Conclusão Cênica da Barra: Disparo de Onda de Choque Luminosa
+        if (this.tugBarTrack) {
+          this.tugBarTrack.classList.remove('pushing-a', 'pushing-b');
+          this.tugBarTrack.classList.add('tug-concluded');
+        }
+
+        if (this.tugShockwave) {
+          this.tugShockwave.classList.remove('active');
+          void this.tugShockwave.offsetWidth; // Trigger reflow para reiniciar animação
+          this.tugShockwave.classList.add('active');
+        }
+
+        // Rolagem de contagem suave dos percentuais finais
+        this.animateNumberCounter(this.stageOptionAPercent, percentA, percentA > percentB ? '👑 ' : (totalVotes > 0 && percentA === percentB ? '🤝 ' : ''));
+        this.animateNumberCounter(this.stageOptionBPercent, percentB, percentB > percentA ? '👑 ' : (totalVotes > 0 && percentA === percentB ? '🤝 ' : ''));
       }
 
       // Destaque cênico da opção vencedora e canhão lateral de confetes
       if (percentA > percentB) {
-        this.stageOptionAPercent.textContent = `👑 ${percentA}%`;
+        if (!isFirstReveal) this.stageOptionAPercent.textContent = `👑 ${percentA}%`;
         this.stageCardA.classList.add('stage-card-winner');
         this.stageCardA.classList.remove('stage-card-loser');
         this.stageWinnerCrownA.classList.remove('hidden');
@@ -228,6 +364,11 @@ class StageScreen {
         this.stageCardB.classList.add('stage-card-loser');
         this.stageCardB.classList.remove('stage-card-winner');
         this.stageWinnerCrownB.classList.add('hidden');
+
+        if (this.tugBarTrack) {
+          this.tugBarTrack.classList.add('winner-a');
+          this.tugBarTrack.classList.remove('winner-b');
+        }
 
         // Canhão direcional disparando da esquerda em Google Blue
         if (isFirstReveal && window.confetti) {
@@ -240,7 +381,7 @@ class StageScreen {
           });
         }
       } else if (percentB > percentA) {
-        this.stageOptionBPercent.textContent = `👑 ${percentB}%`;
+        if (!isFirstReveal) this.stageOptionBPercent.textContent = `👑 ${percentB}%`;
         this.stageCardB.classList.add('stage-card-winner');
         this.stageCardB.classList.remove('stage-card-loser');
         this.stageWinnerCrownB.classList.remove('hidden');
@@ -248,6 +389,11 @@ class StageScreen {
         this.stageCardA.classList.add('stage-card-loser');
         this.stageCardA.classList.remove('stage-card-winner');
         this.stageWinnerCrownA.classList.add('hidden');
+
+        if (this.tugBarTrack) {
+          this.tugBarTrack.classList.add('winner-b');
+          this.tugBarTrack.classList.remove('winner-a');
+        }
 
         // Canhão direcional disparando da direita em Google Red
         if (isFirstReveal && window.confetti) {
@@ -260,12 +406,17 @@ class StageScreen {
           });
         }
       } else if (totalVotes > 0) {
-        this.stageOptionAPercent.textContent = `🤝 ${percentA}%`;
-        this.stageOptionBPercent.textContent = `🤝 ${percentB}%`;
+        if (!isFirstReveal) {
+          this.stageOptionAPercent.textContent = `🤝 ${percentA}%`;
+          this.stageOptionBPercent.textContent = `🤝 ${percentB}%`;
+        }
         this.stageCardA.classList.remove('stage-card-winner', 'stage-card-loser');
         this.stageCardB.classList.remove('stage-card-winner', 'stage-card-loser');
         this.stageWinnerCrownA.classList.add('hidden');
         this.stageWinnerCrownB.classList.add('hidden');
+        if (this.tugBarTrack) {
+          this.tugBarTrack.classList.remove('winner-a', 'winner-b');
+        }
       }
     }
   }
