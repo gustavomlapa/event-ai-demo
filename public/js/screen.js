@@ -94,15 +94,18 @@ class StageScreen {
     // 2. Transições de layout por status
     if (this.currentStatus !== state.status) {
       this.currentStatus = state.status;
-      this.updateScreenMode(state.status);
+      this.updateScreenMode(state.status, state);
     }
 
     if (state.status === 'LOBBY') {
       this.screenRoundBadge.textContent = state.currentRound 
         ? `Aguardando Início: Rodada ${state.currentRound.id}` 
         : 'Lobby Aberto';
-    } else if (state.status === 'ACTIVE' || state.status === 'REVEAL') {
-      this.screenRoundBadge.textContent = `Rodada ${state.currentRound.id} de ${state.totalRounds}`;
+    } else if (state.status === 'ACTIVE') {
+      this.screenRoundBadge.textContent = `Rodada ${state.currentRound.id} de ${state.totalRounds} (Votação Aberta)`;
+      this.renderBattle(state);
+    } else if (state.status === 'REVEAL') {
+      this.screenRoundBadge.textContent = `Rodada ${state.currentRound.id} de ${state.totalRounds} (Resultado Final)`;
       this.renderBattle(state);
     } else if (state.status === 'FINISHED') {
       this.screenRoundBadge.textContent = 'Oscar dos Devs';
@@ -110,19 +113,21 @@ class StageScreen {
     }
   }
 
-  updateScreenMode(status) {
-    if (status === 'LOBBY' && (!this.currentRoundId || this.currentRoundId === 1)) {
-      this.stageLobby.classList.remove('hidden');
-      this.stageBattle.classList.add('hidden');
-      this.stageFinished.classList.add('hidden');
-    } else if (status === 'ACTIVE' || status === 'REVEAL') {
-      this.stageLobby.classList.add('hidden');
-      this.stageBattle.classList.remove('hidden');
-      this.stageFinished.classList.add('hidden');
-    } else if (status === 'FINISHED') {
+  updateScreenMode(status, state) {
+    if (status === 'FINISHED') {
       this.stageLobby.classList.add('hidden');
       this.stageBattle.classList.add('hidden');
       this.stageFinished.classList.remove('hidden');
+    } else if (status === 'ACTIVE' || status === 'REVEAL') {
+      // Mantém a tela da rodada e cabo de guerra visíveis durante a votação e resultado final
+      this.stageLobby.classList.add('hidden');
+      this.stageBattle.classList.remove('hidden');
+      this.stageFinished.classList.add('hidden');
+    } else if (status === 'LOBBY') {
+      // Só volta ao Lobby quando o admin clicar em "Próxima Rodada" ou no início
+      this.stageLobby.classList.remove('hidden');
+      this.stageBattle.classList.add('hidden');
+      this.stageFinished.classList.add('hidden');
     }
   }
 
@@ -164,21 +169,26 @@ class StageScreen {
       this.tugBarB.style.width = `${percentB}%`;
     }
 
-    // Gerenciamento do Timer de 10s durante ACTIVE
+    // Gerenciamento do Timer de 30s
     if (state.status === 'ACTIVE') {
       const now = Date.now();
       const startTime = state.roundStartTime || now;
       const elapsedSeconds = Math.floor((now - startTime) / 1000);
-      const remainingSeconds = Math.max(0, 10 - elapsedSeconds);
-      this.stageTimerSeconds.textContent = remainingSeconds;
+      const remainingSeconds = Math.max(0, 30 - elapsedSeconds);
+      this.savedPausedSeconds = remainingSeconds;
 
-      if (remainingSeconds <= 3) {
-        this.stageTimerSeconds.style.color = '#ef4444';
+      if (remainingSeconds > 0) {
+        this.stageTimerSeconds.textContent = `${remainingSeconds}s`;
+        this.stageTimerSeconds.style.color = remainingSeconds <= 5 ? '#ef4444' : '#fff';
       } else {
-        this.stageTimerSeconds.style.color = '#fff';
+        // Ao terminar o timer não faz nada e espera a votação ser fechada pelo admin
+        this.stageTimerSeconds.textContent = '0s (Aguardando Encerramento)';
+        this.stageTimerSeconds.style.color = '#ef4444';
       }
     } else if (state.status === 'REVEAL') {
-      this.stageTimerSeconds.textContent = '0';
+      // Se for fechada antes (ou ao fechar), para o timer imediatamente
+      const pausedSec = this.savedPausedSeconds !== undefined ? this.savedPausedSeconds : 0;
+      this.stageTimerSeconds.textContent = `Votação Fechada (Pausado em ${pausedSec}s)`;
       this.stageTimerSeconds.style.color = '#10b981';
 
       // Destaque visual da opção vencedora
@@ -186,6 +196,9 @@ class StageScreen {
         this.stageOptionAPercent.textContent = `👑 ${percentA}%`;
       } else if (percentB > percentA) {
         this.stageOptionBPercent.textContent = `👑 ${percentB}%`;
+      } else if (totalVotes > 0) {
+        this.stageOptionAPercent.textContent = `🤝 ${percentA}%`;
+        this.stageOptionBPercent.textContent = `🤝 ${percentB}%`;
       }
     }
   }
@@ -208,7 +221,7 @@ class StageScreen {
     }
 
     try {
-      const res = await fetch('/api/admin/trophies');
+      const res = await fetch('/api/trophies');
       if (!res.ok) return;
       const data = await res.json();
 
