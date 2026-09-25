@@ -25,23 +25,24 @@
 - [x] In `README.md`, write a complete user and operator manual detailing how to run locally, test with mock, and deploy to GCP Cloud Run.
 - [x] Final verification of all flows, tests, and manual steps.
 
-### Novas Demandas Solicitadas pelo Usuário
+### Demandas do Palco (Timer, Persistência e Admin)
 - [x] In `TECH_BATTLE_SPEC_PROMPT.md`, update specification with: persistent round result on stage screen until next round is clicked, 30s timer with pause on close and idle on expire, and admin password protection ("techadmin").
 - [x] In `src/config.js` and `tests/integration/api.test.js`, add tests and configuration for admin password authentication (`x-admin-password: techadmin`).
 - [x] In `src/routes/api.js`, implement admin authentication middleware and `/api/admin/auth` verification endpoint.
 - [x] In `public/screen.html` and `public/js/screen.js`, update timer to 30s, implement pause on close, idle on 0s, and ensure round result remains visible on stage during REVEAL until admin advances.
 - [x] In `public/admin.html`, `public/js/admin.js`, and `public/css/style.css`, implement admin password login screen ("techadmin"), session storage, and header token transmission.
-- [x] Run full test suite (`npm test`), verify all changes, and commit atomically with conventional prefixes.
+
+### Nova Demanda: Design System & UI Moderna Estilo Google Developer
+- [x] In `TECH_BATTLE_SPEC_PROMPT.md`, add a dedicated section and master prompt instructions for Google Developer aesthetic (Google 4-color palette `#4285F4`, `#EA4335`, `#FBBC04`, `#34A853`, Material You Dark theme, typography, micro-interactions, high-contrast battle cards).
+- [x] In `public/css/style.css`, implement modern Google Developer design tokens, Google 4-color accents, Material You cards, glowing tug-of-war dividing line, and ripple/touch states.
+- [x] In `public/index.html`, `public/screen.html`, and `public/admin.html`, link Google Fonts (`Google Sans` / `Outfit` / `Roboto Mono`) and enhance header badges, icons, and Google-style pill chips.
+- [x] Run full test suite (`npm test`), verify rendering, and commit atomically with conventional prefixes.
 
 ---
 
 ## Autocrítica do Plano (Critique)
 
-1. **Risco de Concorrência no Firestore com 300 Votos Simultâneos:**
-   - *Mitigação:* Cada voto é persistido como um documento exclusivo em subcoleção. As contagens são agregadas em memória no servidor Cloud Run para respostas imediatas (<5ms) sem sobrecarregar o Firestore.
-2. **Prevenção do Bug Falsy em JS:**
-   - *Mitigação:* Uso rigoroso de `percent !== undefined ? Number(percent) : 0`. Com 0 votos, o valor é estritamente 0% para ambas opções e a barra repousa em 50%/50%.
-3. **Temporizador de 30s Não-Bloqueante:**
-   - *Mitigação:* O temporizador visual de 30 segundos deve ser estritamente visual no telão. Se expirar, a votação NÃO se fecha automaticamente no backend, aguardando a decisão de palco do palestrante no `/admin.html`. Se o palestrante fechar antes dos 30s, o timer é congelado imediatamente.
-4. **Segurança do Painel Admin:**
-   - *Mitigação:* O header `x-admin-password: techadmin` protegerá todos os endpoints `/api/admin/*`, garantindo que participantes no auditório não consigam disparar requisições para abrir/fechar rodadas caso descubram a rota.
+1. **Performance e Peso de Fontes:**
+   - Para não depender exclusivamente de fontes externas no caso de internet lenta no auditório, usaremos fallback robusto: `'Google Sans', 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`.
+2. **Contraste e Legibilidade no Projetor:**
+   - Telões de evento frequentemente perdem contraste sob luz forte. O estilo Google utilizará preto profundo (`#0b0e14` / `#131314`) com superfícies de alto contraste (`#1e2330`), fontes em peso 700/800 e cores vivas do Google (Azul Google `#4285f4` e Vermelho Google `#ea4335`) com sombras de realce (neon glow).

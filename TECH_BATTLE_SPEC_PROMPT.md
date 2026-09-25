@@ -38,6 +38,33 @@ Este documento foi elaborado para ser utilizado como **contexto e prompt mestre*
 
 ---
 
+## 🎨 Design System & UI Experience (Estilo Google Developer & Material You Dark)
+
+Para garantir uma estética visual moderna, profissional e memorável no palco de um evento de tecnologia, a interface deve seguir rigorosamente a linguagem de design **Google Developer / Material Design 3 (Dark Theme)**:
+
+### 1. Paleta de Cores Oficial do Google
+- **Google Blue (`#4285F4` / `#1a73e8`):** Cor primária do sistema, botões principais, Opção A no confronto e glow de destaque esquerdo.
+- **Google Red (`#EA4335` / `#d93025`):** Opção B no confronto, alertas de tempo crítico e glow de destaque direito.
+- **Google Yellow (`#FBBC04` / `#f9ab00`):** Indicador de contagem regressiva, status `REVEAL` e troféu "The Flash".
+- **Google Green (`#34A853` / `#1e8e3e`):** Indicador de presença de devs online (pulsante), confirmação de voto computado e status de sucesso.
+- **Google 4-Color Gradient:** `linear-gradient(90deg, #4285F4 0%, #EA4335 33%, #FBBC04 66%, #34A853 100%)` aplicado em filetes sutis no topo do cabeçalho, barras de destaque e logotipo.
+
+### 2. Superfícies & Glassmorphism (Material You Dark)
+- **Background Principal:** `#0b0e14` (preto profundo azulado com iluminação ambiente radial suave em Google Blue e Google Red).
+- **Cards e Containers:** `#161b26` com bordas translúcidas finas (`border: 1px solid rgba(255, 255, 255, 0.08)`), blur de vidro (`backdrop-filter: blur(12px)`) e sombras de elevação suaves (`box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4)`).
+- **Bordas Arredondadas (Shape Hierarchy):** `16px` para cards, `12px` para botões e inputs, `9999px` (pílula) para chips e badges de status.
+
+### 3. Tipografia Google
+- **Fonte Principal (Sans):** `'Google Sans', 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`.
+- **Fonte Monospaçada (Contadores & Timers):** `'Roboto Mono', 'SF Mono', monospace` com pesos destacados (`700` e `800`).
+
+### 4. Micro-interações & Física de Animação
+- **Cabo de Guerra:** Transição suave da barra com curva do Material Design: `transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1)`. Linha divisória central com feixe de luz vertical néon (`box-shadow: 0 0 15px rgba(255, 255, 255, 0.8)`).
+- **Botões Mobile 1-Tap:** Efeito tátil de pressão imediata (`transform: scale(0.97)` ao toque), feedback vibratório (`navigator.vibrate([40])`) e badge animado de confirmação em milissegundos.
+- **Pills de Status:** Chips com ponto de luz pulsante (CSS `@keyframes pulseGlow`).
+
+---
+
 ## 🎮 Mecânica do Jogo: Tech Battle Royale
 
 ### 📱 1. Tela do Participante (Mobile - `/`)
@@ -133,20 +160,28 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
    9. Logs Estruturados no Console vs. Métricas e Tracing Distribuído
    10. Dev Especialista Profundo vs. Dev Generalista Orquestrador de IA
 
-3. REQUISITOS DAS TELAS (FRONTEND MODERNO & RESPONSIVO):
-   - Telão (/screen.html): Exibe QR Code gerado dinamicamente para a URL atual, contador de devs conectados, barra animada de "cabo de guerra" que oscila em tempo real com os votos, timer regressivo de 30s (que pausa imediatamente no fechamento e permanece ocioso se zerar) e o pódio final dos troféus com confetes. Ao fechar a votação, o telão mantém a exibição do resultado da rodada e só muda quando o admin clicar em "Próxima Rodada".
-     * Coerência de Votos em Tempo Real: Com 0 votos exiba 0% (0 votos) e mantenha a barra no centro (50%/50%). Conforme os votos chegam, a barra e os textos refletem as porcentagens reais (ex: 0% e 100%, 33% e 67%). NUNCA use 'data.percentA || 50' no frontend (pois '0 || 50' vira 50 em JS); use sempre verificação estrita ('data.percentA !== undefined ? Number(data.percentA) : 0').
-   - Participante Mobile (/): Tela limpa para digitar apelido, 2 botões grandes coloridos por rodada, haptic feedback no clique, bloqueio de voto duplo, registro do tempo de resposta (ms) e exibição das porcentagens reais na revelação.
-     * Gestão de Sessão & Desconexão: Botão "Sair / Trocar Nickname" no cabeçalho e na tela de espera (ocultado durante ACTIVE para evitar toques acidentais). Rastreie um sessionId no servidor (regenerado ao reiniciar o jogo no admin); clientes sincronizam via polling e efetuam auto-logout ao detectar sessionId alterado, retornando à tela de inserção de nome.
-   - Painel do Apresentador (/admin.html): Controle protegido por senha fixa ("techadmin"), com suporte a abrir rodada (timer de 30s), fechar rodada, avançar rodada e resetar a partida. Rotas /api/admin/* protegidas com validação de senha.
+3. DESIGN SYSTEM & UI MODERNA ESTILO GOOGLE DEVELOPER:
+   - Adote rigorosamente a estética Google Developer / Material Design 3 (Dark Theme):
+     * Paleta Oficial: Google Blue (#4285F4) na Opção A, Google Red (#EA4335) na Opção B, Google Yellow (#FBBC04) em timers/troféus, Google Green (#34A853) em status de conexão/sucesso.
+     * Fita das 4 Cores do Google: Borda decorativa superior com linear-gradient(90deg, #4285F4, #EA4335, #FBBC04, #34A853) no cabeçalho e logo.
+     * Tipografia: 'Google Sans', 'Outfit', 'Inter' para textos e títulos; 'Roboto Mono' para timers, votos e porcentagens.
+     * Superfícies: Fundo preto profundo (#0b0e14) com brilho radial sutil, cards elevados em #161b26 com bordas translúcidas de 1px e backdrop-filter (glassmorphism).
+     * Cabo de Guerra de Alto Impacto: Transição suave com cubic-bezier(0.4, 0, 0.2, 1) e linha divisória central com feixe de luz néon.
 
-4. ALGORITMO DOS TROFÉUS (O OSCAR DOS DEVS):
+4. REQUISITOS DAS TELAS (FRONTEND MODERNO & RESPONSIVO):
+   - Telão (/screen.html): Exibe QR Code com moldura iluminada no estilo Google Developer, contador de devs conectados, barra animada de "cabo de guerra" que oscila em tempo real com os votos, timer regressivo de 30s (que pausa imediatamente no fechamento e permanece ocioso se zerar) e o pódio final dos troféus com confetes. Ao fechar a votação, o telão mantém a exibição do resultado da rodada e só muda quando o admin clicar em "Próxima Rodada".
+     * Coerência de Votos em Tempo Real: Com 0 votos exiba 0% (0 votos) e mantenha a barra no centro (50%/50%). Conforme os votos chegam, a barra e os textos refletem as porcentagens reais (ex: 0% e 100%, 33% e 67%). NUNCA use 'data.percentA || 50' no frontend (pois '0 || 50' vira 50 em JS); use sempre verificação estrita ('data.percentA !== undefined ? Number(data.percentA) : 0').
+   - Participante Mobile (/): Tela moderna e limpa para digitar apelido, 2 botões grandes coloridos por rodada com elevação Material e micro-interação ao toque (scale 0.97), haptic feedback no clique, bloqueio de voto duplo, registro do tempo de resposta (ms) e exibição das porcentagens reais na revelação.
+     * Gestão de Sessão & Desconexão: Botão "Sair / Trocar Nickname" no cabeçalho e na tela de espera (ocultado durante ACTIVE para evitar toques acidentais). Rastreie um sessionId no servidor (regenerado ao reiniciar o jogo no admin); clientes sincronizam via polling e efetuam auto-logout ao detectar sessionId alterado, retornando à tela de inserção de nome.
+   - Painel do Apresentador (/admin.html): Controle com layout inspirado no Google Cloud Console, protegido por senha fixa ("techadmin"), com suporte a abrir rodada (timer de 30s), fechar rodada, avançar rodada e resetar a partida. Rotas /api/admin/* protegidas com validação de senha.
+
+5. ALGORITMO DOS TROFÉUS (O OSCAR DOS DEVS):
    - "The Flash" (Gatilho Rápido): Menor tempo médio de resposta geral.
    - "O Filósofo da Arquitetura": Maior tempo médio de resposta geral.
    - "O Lobo Solitário": Mais votos em opções minoritárias.
    - "A Voz do Povo": Mais votos alinhados com a maioria da sala.
 
-5. QUALIDADE & TESTES:
+6. QUALIDADE & TESTES:
    - Escreva testes unitários para o serviço de jogo e para o algoritmo de troféus.
    - Escreva testes de integração para as rotas da API.
    - Crie o Dockerfile multi-stage otimizado para Cloud Run executando como usuário não-root.
