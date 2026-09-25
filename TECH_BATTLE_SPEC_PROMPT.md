@@ -21,7 +21,7 @@ Este documento foi elaborado para ser utilizado como **contexto e prompt mestre*
   - Escala de 0 a dezenas de instâncias automaticamente.
   - Concorrência ajustada para 80 requisições simultâneas por container.
   - `min-instances: 1` para garantir latência imediata sem cold starts.
-  - Porta dinâmica lida via variável de ambiente `PORT` (padrão 8080).
+  - Porta dinâmica: o Cloud Run injeta automaticamente a variável de ambiente reservada `PORT` (8080). **ATENÇÃO:** Nunca passe `PORT` dentro de `--set-env-vars` no `gcloud run deploy`, pois o Cloud Run rejeita variáveis reservadas do sistema. Use a flag nativa `--port 8080`.
 - **Database:** **Google Cloud Firestore** (Native Mode).
   - Baixa latência, alta vazão de escrita para absorver os 300 votos simultâneos por rodada.
   - Suporte a modo local (mock em memória) para desenvolvimento e testes offline.
@@ -33,7 +33,7 @@ Este documento foi elaborado para ser utilizado como **contexto e prompt mestre*
     - `roles/logging.logWriter` (escrita de logs de build)
     - `roles/artifactregistry.writer` (publicação de containers no Artifact Registry)
     - `roles/datastore.user` (acesso do container Cloud Run para ler/escrever no Firestore)
-- **Configuração:** Gerenciada via variáveis de ambiente carregadas do `.env` (`GCP_PROJECT_ID`, `GCP_REGION`, `SERVICE_NAME`, `PORT`).
+- **Configuração:** Gerenciada via variáveis de ambiente carregadas do `.env` (`GCP_PROJECT_ID`, `GCP_REGION`, `SERVICE_NAME`).
 - **Automação Self-Healing:** Script `deploy.sh` que resolve automaticamente o ID/número do projeto, habilita APIs, aplica as roles IAM e faz o deploy sem necessidade de configurações manuais no console.
 
 ---
@@ -156,7 +156,7 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
    - Backend: Node.js (Express), modular, servindo a API REST e os assets estáticos em um único container.
      * Cálculo de Votos: Quando total de votos for 0, retorne percentA: 0 e percentB: 0. Quando houver votos, calcule percentA = Math.round((countA / total) * 100) e percentB = 100 - percentA (soma sempre 100%).
    - Banco de Dados: Firestore no modo nativo (com suporte a fallback mock local via USE_LOCAL_MOCK).
-   - Configurações: Carregadas a partir do arquivo .env (GCP_PROJECT_ID, GCP_REGION, SERVICE_NAME, PORT, FIRESTORE_DATABASE_ID).
+   - Configurações: Carregadas a partir do arquivo .env (GCP_PROJECT_ID, GCP_REGION, SERVICE_NAME, FIRESTORE_DATABASE_ID).
    - Build Resiliente & Prevenção de Erros no Cloud Build:
      * Crie sempre um arquivo `.gcloudignore` (ignorando `node_modules/`, `.git`, `.env`, `coverage/`, `tests/`, etc.) para garantir que apenas o código fonte puro seja enviado ao Cloud Storage/Cloud Build, evitando uploads lentos ou arquivos corrompidos.
      * Crie `package-lock.json` consistente (`npm install --package-lock-only`).
@@ -164,8 +164,9 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
      * Validação Pré-Voo (Pre-Flight Checks): Antes de chamar o `gcloud`, valida obrigatoriamente se `package.json` existe, não está vazio (0 bytes) e é um JSON válido. Cria automaticamente `package-lock.json` e `.gcloudignore` se ausentes.
      * Habilita APIs: run.googleapis.com, cloudbuild.googleapis.com, artifactregistry.googleapis.com, firestore.googleapis.com, storage.googleapis.com.
      * Concede roles à Service Account do Compute Engine ([PROJECT_NUMBER]-compute@developer.gserviceaccount.com): roles/storage.admin, roles/logging.logWriter, roles/artifactregistry.writer, roles/datastore.user.
-     * Cria automaticamente a base Firestore no modo nativo caso ainda não exista.
-     * Executa gcloud run deploy com concorrência para 80 conexões e min-instances 1.
+     * Cria automaticamente a base Firestore com o nome customizado do .env no modo nativo caso ainda não exista.
+     * Executa gcloud run deploy com `--port 8080`, concorrência para 80 conexões e min-instances 1.
+     * **REGRA CRÍTICA DO CLOUD RUN (VARIÁVEL RESERVADA PORT):** NUNCA inclua `PORT` dentro de `--set-env-vars` no `gcloud run deploy`, pois o Cloud Run reserva `PORT` para injeção automática pelo sistema e rejeita a criação do serviço com erro. Passe apenas `--port 8080` e deixe a aplicação ler `process.env.PORT || 8080`.
 
 2. AS 10 RODADAS TÉCNICAS:
    Implemente exatamente as 10 rodadas técnicas pré-configuradas:
