@@ -157,7 +157,11 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
      * Cálculo de Votos: Quando total de votos for 0, retorne percentA: 0 e percentB: 0. Quando houver votos, calcule percentA = Math.round((countA / total) * 100) e percentB = 100 - percentA (soma sempre 100%).
    - Banco de Dados: Firestore no modo nativo (com suporte a fallback mock local via USE_LOCAL_MOCK).
    - Configurações: Carregadas a partir do arquivo .env (GCP_PROJECT_ID, GCP_REGION, SERVICE_NAME, PORT, FIRESTORE_DATABASE_ID).
+   - Build Resiliente & Prevenção de Erros no Cloud Build:
+     * Crie sempre um arquivo `.gcloudignore` (ignorando `node_modules/`, `.git`, `.env`, `coverage/`, `tests/`, etc.) para garantir que apenas o código fonte puro seja enviado ao Cloud Storage/Cloud Build, evitando uploads lentos ou arquivos corrompidos.
+     * Crie `package-lock.json` consistente (`npm install --package-lock-only`).
    - Deploy & Automação de IAM: Script deploy.sh auto-contido e resiliente para projetos novos no GCP:
+     * Validação Pré-Voo (Pre-Flight Checks): Antes de chamar o `gcloud`, valida obrigatoriamente se `package.json` existe, não está vazio (0 bytes) e é um JSON válido. Cria automaticamente `package-lock.json` e `.gcloudignore` se ausentes.
      * Habilita APIs: run.googleapis.com, cloudbuild.googleapis.com, artifactregistry.googleapis.com, firestore.googleapis.com, storage.googleapis.com.
      * Concede roles à Service Account do Compute Engine ([PROJECT_NUMBER]-compute@developer.gserviceaccount.com): roles/storage.admin, roles/logging.logWriter, roles/artifactregistry.writer, roles/datastore.user.
      * Cria automaticamente a base Firestore no modo nativo caso ainda não exista.
@@ -206,7 +210,11 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
 6. QUALIDADE & TESTES:
    - Escreva testes unitários para o serviço de jogo e para o algoritmo de troféus.
    - Escreva testes de integração para as rotas da API.
-   - Crie o Dockerfile multi-stage otimizado para Cloud Run executando como usuário não-root.
+   - Crie o Dockerfile multi-stage otimizado para Cloud Run:
+     * Base: node:20-alpine
+     * Instalação segura: `RUN npm ci --omit=dev --no-audit || npm install --omit=dev --no-audit` (evita quebra por lockfile desatualizado e substitui o deprecated --only=production).
+     * Execução com usuário não-root `node`.
+     * Crie `.dockerignore` e `.gcloudignore` alinhados.
 
 Comece agora criando os arquivos de configuração, testes e implementação completa!
 ```
