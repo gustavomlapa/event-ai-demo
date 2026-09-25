@@ -60,9 +60,13 @@ Este documento foi elaborado para ser utilizado como **contexto e prompt mestre*
     * Com 0 votos: exibe `0% (0 votos)` para ambas opções, com a barra visual mantida no centro (50% / 50%) aguardando o primeiro voto.
     * Conforme os votos entram: calcula estritamente `percentA = Math.round((countA / total) * 100)` e `percentB = 100 - percentA` (sempre somando 100%).
     * **Atenção ao Bug Falsy em JS:** Nunca use `percentA || 50` no frontend, pois `0 || 50` vira `50`, gerando distorções como 50% vs 100%. Use sempre nullish check (`percentA !== undefined ? percentA : 0`).
-  - Timer regressivo visual sincronizado (10 segundos).
-- **Modo Revelação da Rodada:**
-  - Percentual exato de cada opção e comemoração visual da opção vencedora (ou empate técnico).
+  - **Timer Regressivo Visual (30 Segundos):**
+    * Configurado em 30 segundos que inicia após a abertura da rodada pelo admin.
+    * Ao terminar os 30s, o timer congela em 0s sem disparar nenhuma ação automática, aguardando pacientemente que o apresentador encerre a votação no admin.
+    * Se o apresentador encerrar a votação antes dos 30s, o timer é pausado imediatamente.
+- **Modo Revelação da Rodada (Persistência no Telão):**
+  * Quando o apresentador fecha uma votação no admin, o telão do palco continua exibindo os resultados consolidados da rodada (percentuais exatos, total de votos e vencedor).
+  * O telão **só muda de tela quando o admin clicar em "Próxima Rodada"** no painel de controle.
 - **Modo Cerimônia Final ("O Oscar dos Devs"):**
   - Revelação dos troféus divertidos calculados matematicamente sobre os votos reais:
     - ⚡ **The Flash (Gatilho Rápido):** Menor tempo médio de resposta geral da sala.
@@ -71,8 +75,9 @@ Este documento foi elaborado para ser utilizado como **contexto e prompt mestre*
     - 🤝 **A Voz do Povo:** Participante que votou 100% alinhado com a maioria em todas as rodadas.
     - 🏆 **A Stack Oficial do Auditório:** Resumo leve das tecnologias consagradas pela plateia.
 
-### 🎛️ 3. Painel do Apresentador (Controle Discreto - `/admin.html`)
-- Botão "Abrir Rodada", "Fechar Rodada", "Próxima Rodada" e "Revelar Troféus".
+### 🎛️ 3. Painel do Apresentador (Controle Protegido - `/admin.html`)
+- **Proteção por Senha:** O acesso ao painel de administração e às rotas `/api/admin/*` exige autenticação por senha (definida inicialmente como `"techadmin"`).
+- **Ações do Palco:** Botão "Abrir Rodada (30s)", "Fechar Rodada / Revelar", "Próxima Rodada" e "Revelar Troféus".
 
 ---
 
@@ -129,11 +134,11 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
    10. Dev Especialista Profundo vs. Dev Generalista Orquestrador de IA
 
 3. REQUISITOS DAS TELAS (FRONTEND MODERNO & RESPONSIVO):
-   - Telão (/screen.html): Exibe QR Code gerado dinamicamente para a URL atual, contador de devs conectados, barra animada de "cabo de guerra" que oscila em tempo real com os votos, timer regressivo de 10s e o pódio final dos troféus com confetes.
+   - Telão (/screen.html): Exibe QR Code gerado dinamicamente para a URL atual, contador de devs conectados, barra animada de "cabo de guerra" que oscila em tempo real com os votos, timer regressivo de 30s (que pausa imediatamente no fechamento e permanece ocioso se zerar) e o pódio final dos troféus com confetes. Ao fechar a votação, o telão mantém a exibição do resultado da rodada e só muda quando o admin clicar em "Próxima Rodada".
      * Coerência de Votos em Tempo Real: Com 0 votos exiba 0% (0 votos) e mantenha a barra no centro (50%/50%). Conforme os votos chegam, a barra e os textos refletem as porcentagens reais (ex: 0% e 100%, 33% e 67%). NUNCA use 'data.percentA || 50' no frontend (pois '0 || 50' vira 50 em JS); use sempre verificação estrita ('data.percentA !== undefined ? Number(data.percentA) : 0').
    - Participante Mobile (/): Tela limpa para digitar apelido, 2 botões grandes coloridos por rodada, haptic feedback no clique, bloqueio de voto duplo, registro do tempo de resposta (ms) e exibição das porcentagens reais na revelação.
      * Gestão de Sessão & Desconexão: Botão "Sair / Trocar Nickname" no cabeçalho e na tela de espera (ocultado durante ACTIVE para evitar toques acidentais). Rastreie um sessionId no servidor (regenerado ao reiniciar o jogo no admin); clientes sincronizam via polling e efetuam auto-logout ao detectar sessionId alterado, retornando à tela de inserção de nome.
-   - Painel do Apresentador (/admin.html): Controle discreto para iniciar, fechar e avançar rodadas ou reiniciar a partida.
+   - Painel do Apresentador (/admin.html): Controle protegido por senha fixa ("techadmin"), com suporte a abrir rodada (timer de 30s), fechar rodada, avançar rodada e resetar a partida. Rotas /api/admin/* protegidas com validação de senha.
 
 4. ALGORITMO DOS TROFÉUS (O OSCAR DOS DEVS):
    - "The Flash" (Gatilho Rápido): Menor tempo médio de resposta geral.

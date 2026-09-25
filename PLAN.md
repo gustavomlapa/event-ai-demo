@@ -2,7 +2,7 @@
 
 ## Checklist de Execução
 
-- [x] In `package.json`, configure project metadata, Node.js scripts (`start`, `dev`, `test`), and dependencies (`express`, `@google-cloud/firestore`, `dotenv`, `cors`, `qrcode`, `canvas-confetti`, `jest`, `supertest`).
+- [x] In `package.json`, configure project metadata, Node.js scripts (`start`, `dev`, `test`), and dependencies (`express`, `@google-cloud/firestore`, `dotenv`, `cors`, `qrcode`, `jest`, `supertest`).
 - [x] In `.gitignore`, create comprehensive ignore rules for `node_modules`, `.env`, build artifacts, GCP credentials, and coverage.
 - [x] In `.env.example` and `.env`, configure environment variables (`PORT`, `GCP_PROJECT_ID`, `GCP_REGION`, `SERVICE_NAME`, `FIRESTORE_DATABASE_ID`, `USE_LOCAL_MOCK`, `NODE_ENV`) with safe defaults and placeholders.
 - [x] In `src/config.js`, implement configuration loader with validation and default fallbacks.
@@ -25,18 +25,23 @@
 - [x] In `README.md`, write a complete user and operator manual detailing how to run locally, test with mock, and deploy to GCP Cloud Run.
 - [x] Final verification of all flows, tests, and manual steps.
 
+### Novas Demandas Solicitadas pelo Usuário
+- [x] In `TECH_BATTLE_SPEC_PROMPT.md`, update specification with: persistent round result on stage screen until next round is clicked, 30s timer with pause on close and idle on expire, and admin password protection ("techadmin").
+- [x] In `src/config.js` and `tests/integration/api.test.js`, add tests and configuration for admin password authentication (`x-admin-password: techadmin`).
+- [x] In `src/routes/api.js`, implement admin authentication middleware and `/api/admin/auth` verification endpoint.
+- [x] In `public/screen.html` and `public/js/screen.js`, update timer to 30s, implement pause on close, idle on 0s, and ensure round result remains visible on stage during REVEAL until admin advances.
+- [x] In `public/admin.html`, `public/js/admin.js`, and `public/css/style.css`, implement admin password login screen ("techadmin"), session storage, and header token transmission.
+- [x] Run full test suite (`npm test`), verify all changes, and commit atomically with conventional prefixes.
+
 ---
 
 ## Autocrítica do Plano (Critique)
 
 1. **Risco de Concorrência no Firestore com 300 Votos Simultâneos:**
-   - *Gargalo:* O Firestore limita a taxa de gravação em um único documento a ~1 escrita por segundo. Se 300 participantes votarem ao mesmo tempo e tentarmos incrementar o documento da rodada diretamente no banco de dados, o Firestore lançará erros de colisão de transação (`RESOURCE_EXHAUSTED` / `ABORTED`).
-   - *Mitigação:* Cada voto será persistido como um documento exclusivo com ID do participante (`votes/{participantId}`). A soma e porcentagens da rodada ativa são mantidas em memória no servidor Cloud Run para resposta imediata ao endpoint `/api/state`, garantindo que os clientes e o telão vejam as atualizações em tempo real sem sobrecarregar o Firestore.
-
-2. **Edge Case de Javascript no Frontend (Bug Falsy):**
-   - *Gargalo:* Ao iniciar com 0 votos, `data.percentA || 50` em JavaScript resulta em `50` porque `0` é falsy. Isso geraria 50% vs 100% ou visualização incorreta.
-   - *Mitigação:* Usar rigorosamente verificação estrita (`data.percentA !== undefined ? Number(data.percentA) : 0`). O backend explicitamente retorna `{ percentA: 0, percentB: 0, total: 0 }` quando não houver votos, e o CSS posicionará o centro visualmente em 50%/50% em repouso neutro.
-
-3. **Experiência do Participante & Reset de Partida:**
-   - *Gargalo:* Participantes que deixam o celular na tela de uma partida anterior podem ter estado dessincronizado ao reiniciar o evento no palco.
-   - *Mitigação:* O backend gera um `sessionId` a cada reset. Os clientes mobile comparam periodicamente o `sessionId` via polling e executam auto-logout (limpando o `localStorage` e voltando à tela de apelido) quando detectam nova sessão.
+   - *Mitigação:* Cada voto é persistido como um documento exclusivo em subcoleção. As contagens são agregadas em memória no servidor Cloud Run para respostas imediatas (<5ms) sem sobrecarregar o Firestore.
+2. **Prevenção do Bug Falsy em JS:**
+   - *Mitigação:* Uso rigoroso de `percent !== undefined ? Number(percent) : 0`. Com 0 votos, o valor é estritamente 0% para ambas opções e a barra repousa em 50%/50%.
+3. **Temporizador de 30s Não-Bloqueante:**
+   - *Mitigação:* O temporizador visual de 30 segundos deve ser estritamente visual no telão. Se expirar, a votação NÃO se fecha automaticamente no backend, aguardando a decisão de palco do palestrante no `/admin.html`. Se o palestrante fechar antes dos 30s, o timer é congelado imediatamente.
+4. **Segurança do Painel Admin:**
+   - *Mitigação:* O header `x-admin-password: techadmin` protegerá todos os endpoints `/api/admin/*`, garantindo que participantes no auditório não consigam disparar requisições para abrir/fechar rodadas caso descubram a rota.
