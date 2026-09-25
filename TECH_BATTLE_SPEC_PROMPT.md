@@ -94,6 +94,7 @@ Para garantir uma estética visual moderna, profissional e memorável no palco d
 - **Modo Revelação da Rodada (Persistência no Telão):**
   * Quando o apresentador fecha uma votação no admin, o telão do palco continua exibindo os resultados consolidados da rodada (percentuais exatos, total de votos e vencedor).
   * O telão **só muda de tela quando o admin clicar em "Próxima Rodada"** no painel de controle.
+  * **Avanço Direto para Nova Rodada:** Ao clicar em "Próxima Rodada", o telão do palco já mostra a próxima rodada imediatamente, inicia o timer regressivo de 30s e abre a votação nos smartphones dos participantes de uma só vez — sem a necessidade de um botão manual de "abrir votação" a cada rodada.
 - **Modo Cerimônia Final ("O Oscar dos Devs"):**
   - Revelação dos troféus divertidos calculados matematicamente sobre os votos reais:
     - ⚡ **The Flash (Gatilho Rápido):** Menor tempo médio de resposta geral da sala.
@@ -104,7 +105,11 @@ Para garantir uma estética visual moderna, profissional e memorável no palco d
 
 ### 🎛️ 3. Painel do Apresentador (Controle Protegido - `/admin.html`)
 - **Proteção por Senha:** O acesso ao painel de administração e às rotas `/api/admin/*` exige autenticação por senha (definida inicialmente como `"techadmin"`).
-- **Ações do Palco:** Botão "Abrir Rodada (30s)", "Fechar Rodada / Revelar", "Próxima Rodada" e "Revelar Troféus".
+- **Fluxo Ágil de 1 Toque por Rodada:**
+  - **No Início (Lobby):** Botão "▶️ Iniciar Batalha (Rodada 1)" para disparar a primeira rodada já em votação ativa com timer de 30s.
+  - **Durante a Votação (`ACTIVE`):** Botão "⏹️ Fechar Votação / Revelar" para pausar o timer e consolidar os resultados no telão.
+  - **Na Revelação (`REVEAL`):** Botão "⏭️ Próxima Rodada" que avança a rodada, atualiza o telão, inicia o timer de 30s e abre a votação instantaneamente (sem botão redundante de abrir votação).
+  - **Encerramento:** Botão "🏆 Ir para Troféus (Oscar)" para apresentar o pódio e "🔄 Resetar Jogo".
 
 ---
 
@@ -169,11 +174,11 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
      * Cabo de Guerra de Alto Impacto: Transição suave com cubic-bezier(0.4, 0, 0.2, 1) e linha divisória central com feixe de luz néon.
 
 4. REQUISITOS DAS TELAS (FRONTEND MODERNO & RESPONSIVO):
-   - Telão (/screen.html): Exibe QR Code com moldura iluminada no estilo Google Developer, contador de devs conectados, barra animada de "cabo de guerra" que oscila em tempo real com os votos, timer regressivo de 30s (que pausa imediatamente no fechamento e permanece ocioso se zerar) e o pódio final dos troféus com confetes. Ao fechar a votação, o telão mantém a exibição do resultado da rodada e só muda quando o admin clicar em "Próxima Rodada".
+   - Telão (/screen.html): Exibe QR Code com moldura iluminada no estilo Google Developer, contador de devs conectados, barra animada de "cabo de guerra" que oscila em tempo real com os votos, timer regressivo de 30s (que pausa imediatamente no fechamento e permanece ocioso se zerar) e o pódio final dos troféus com confetes. Ao fechar a votação, o telão mantém a exibição do resultado da rodada e só muda quando o admin clicar em "Próxima Rodada". Ao clicar em "Próxima Rodada", o telão atualiza imediatamente para o novo confronto, dispara o cronômetro de 30s e libera a votação instantaneamente.
      * Coerência de Votos em Tempo Real: Com 0 votos exiba 0% (0 votos) e mantenha a barra no centro (50%/50%). Conforme os votos chegam, a barra e os textos refletem as porcentagens reais (ex: 0% e 100%, 33% e 67%). NUNCA use 'data.percentA || 50' no frontend (pois '0 || 50' vira 50 em JS); use sempre verificação estrita ('data.percentA !== undefined ? Number(data.percentA) : 0').
    - Participante Mobile (/): Tela moderna e limpa para digitar apelido, 2 botões grandes coloridos por rodada com elevação Material e micro-interação ao toque (scale 0.97), haptic feedback no clique, bloqueio de voto duplo, registro do tempo de resposta (ms) e exibição das porcentagens reais na revelação.
      * Gestão de Sessão & Desconexão: Botão "Sair / Trocar Nickname" no cabeçalho e na tela de espera (ocultado durante ACTIVE para evitar toques acidentais). Rastreie um sessionId no servidor (regenerado ao reiniciar o jogo no admin); clientes sincronizam via polling e efetuam auto-logout ao detectar sessionId alterado, retornando à tela de inserção de nome.
-   - Painel do Apresentador (/admin.html): Controle com layout inspirado no Google Cloud Console, protegido por senha fixa ("techadmin"), com suporte a abrir rodada (timer de 30s), fechar rodada, avançar rodada e resetar a partida. Rotas /api/admin/* protegidas com validação de senha.
+   - Painel do Apresentador (/admin.html): Controle com layout inspirado no Google Cloud Console, protegido por senha fixa ("techadmin"). Ao clicar em "Próxima Rodada", o sistema avança a rodada, inicia o timer regressivo de 30s e abre a votação de uma só vez (sem necessidade de um botão avulso redundante para abrir votação a cada rodada). Rotas /api/admin/* protegidas com validação de senha.
 
 5. ALGORITMO DOS TROFÉUS (O OSCAR DOS DEVS):
    - "The Flash" (Gatilho Rápido): Menor tempo médio de resposta geral.

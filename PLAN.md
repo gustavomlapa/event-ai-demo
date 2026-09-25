@@ -32,17 +32,24 @@
 - [x] In `public/screen.html` and `public/js/screen.js`, update timer to 30s, implement pause on close, idle on 0s, and ensure round result remains visible on stage during REVEAL until admin advances.
 - [x] In `public/admin.html`, `public/js/admin.js`, and `public/css/style.css`, implement admin password login screen ("techadmin"), session storage, and header token transmission.
 
-### Nova Demanda: Design System & UI Moderna Estilo Google Developer
+### Design System Google Developer
 - [x] In `TECH_BATTLE_SPEC_PROMPT.md`, add a dedicated section and master prompt instructions for Google Developer aesthetic (Google 4-color palette `#4285F4`, `#EA4335`, `#FBBC04`, `#34A853`, Material You Dark theme, typography, micro-interactions, high-contrast battle cards).
 - [x] In `public/css/style.css`, implement modern Google Developer design tokens, Google 4-color accents, Material You cards, glowing tug-of-war dividing line, and ripple/touch states.
 - [x] In `public/index.html`, `public/screen.html`, and `public/admin.html`, link Google Fonts (`Google Sans` / `Outfit` / `Roboto Mono`) and enhance header badges, icons, and Google-style pill chips.
 - [x] Run full test suite (`npm test`), verify rendering, and commit atomically with conventional prefixes.
 
+### Nova Demanda: Avanço Automático para Votação Ativa no "Próxima Rodada"
+- [x] In `TECH_BATTLE_SPEC_PROMPT.md`, update Section 3 (Painel do Apresentador) and Section 4 (Prompt Mestre) to document that clicking "Próxima Rodada" directly transitions to `ACTIVE`, begins the 30s timer, updates the stage screen, and opens voting immediately, eliminating the redundant step of opening voting manually on every round.
+- [x] In `tests/unit/gameService.test.js`, write unit test verifying that `nextRound()` transitions directly to `ACTIVE`, resets `roundStartTime`, and opens voting.
+- [x] In `src/services/gameService.js`, update `nextRound()` to set `status = 'ACTIVE'`, initialize `roundStartTime = Date.now()`, and prepare votes map for the new round.
+- [x] In `public/admin.html` and `public/js/admin.js`, streamline presenter buttons so that in `LOBBY` the button is "▶️ Iniciar Batalha (Rodada 1)", and in `REVEAL` the button "⏭️ Próxima Rodada" immediately starts the round with 30s countdown and voting open.
+- [x] Run full test suite (`npm test`), verify behavior, and commit atomically with conventional prefixes.
+
 ---
 
 ## Autocrítica do Plano (Critique)
 
-1. **Performance e Peso de Fontes:**
-   - Para não depender exclusivamente de fontes externas no caso de internet lenta no auditório, usaremos fallback robusto: `'Google Sans', 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`.
-2. **Contraste e Legibilidade no Projetor:**
-   - Telões de evento frequentemente perdem contraste sob luz forte. O estilo Google utilizará preto profundo (`#0b0e14` / `#131314`) com superfícies de alto contraste (`#1e2330`), fontes em peso 700/800 e cores vivas do Google (Azul Google `#4285f4` e Vermelho Google `#ea4335`) com sombras de realce (neon glow).
+1. **Início da Primeira Rodada vs. Rodadas Subsequentes:**
+   - *Mitigação:* Quando o jogo é iniciado pela primeira vez (ou após reset), o estado é `LOBBY`. O botão de início deve ativar a Rodada 1 diretamente em `ACTIVE`. A partir daí, o apresentador só alterna entre "Fechar Votação" (ao discutir o resultado) e "Próxima Rodada" (que já abre a rodada seguinte diretamente em `ACTIVE` com o timer de 30s).
+2. **Última Rodada (Rodada 10):**
+   - *Mitigação:* Se o apresentador estiver na última rodada (Rodada 10) e fechar a votação, ao clicar em avançar, o sistema detecta que acabaram as rodadas e transiciona com segurança para `FINISHED`, liberando o pódio do "Oscar dos Devs".
