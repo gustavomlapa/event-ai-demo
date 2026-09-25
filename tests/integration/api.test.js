@@ -124,15 +124,35 @@ describe('API Integration Tests', () => {
     expect(closeRes.status).toBe(200);
     expect(closeRes.body.status).toBe('REVEAL');
 
-    // 6. Consultar troféus
+    // 6. Avançar para próxima rodada (vai direto para ACTIVE e libera voto de uma só vez)
+    const nextRes = await request(app)
+      .post('/api/admin/next-round')
+      .set(adminHeader);
+    expect(nextRes.status).toBe(200);
+    expect(nextRes.body.status).toBe('ACTIVE');
+    expect(nextRes.body.currentRound.id).toBe(2);
+
+    const voteRound2 = await request(app)
+      .post('/api/vote')
+      .send({
+        participantId: p1.participantId,
+        nickname: p1.nickname,
+        roundId: 2,
+        choice: 'B',
+        responseTimeMs: 310
+      });
+    expect(voteRound2.status).toBe(200);
+    expect(voteRound2.body.success).toBe(true);
+
+    // 7. Consultar troféus
     const trophyRes = await request(app)
       .get('/api/admin/trophies')
       .set(adminHeader);
     expect(trophyRes.status).toBe(200);
-    expect(trophyRes.body.theFlash.nickname).toBe('Alice'); // 250ms < 450ms
-    expect(trophyRes.body.thePhilosopher.nickname).toBe('Bob'); // 450ms > 250ms
+    expect(trophyRes.body.theFlash.nickname).toBe('Alice');
+    expect(trophyRes.body.thePhilosopher.nickname).toBe('Bob');
 
-    // 7. Reset da partida
+    // 8. Reset da partida
     const resetRes = await request(app)
       .post('/api/admin/reset')
       .set(adminHeader);

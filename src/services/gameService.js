@@ -93,7 +93,14 @@ class GameService {
   nextRound() {
     if (this.currentRoundIndex + 1 < this.rounds.length) {
       this.currentRoundIndex += 1;
-      this.status = 'LOBBY';
+      this.status = 'ACTIVE';
+      this.roundStartTime = Date.now();
+
+      const round = this.getCurrentRound();
+      if (!this.votesByRound.has(round.id)) {
+        this.votesByRound.set(round.id, new Map());
+        this.talliesByRound.set(round.id, { countA: 0, countB: 0 });
+      }
     } else {
       this.status = 'FINISHED';
     }

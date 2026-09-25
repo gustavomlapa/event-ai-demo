@@ -126,7 +126,7 @@ class AdminApp {
   }
 
   renderState(state) {
-    this.adminDevsCount.innerHTML = `<span class="live-indicator"></span> ${state.connectedCount || 0} Devs Conectados`;
+    this.adminDevsCount.textContent = `🔥 ${state.connectedCount || 0} Devs Conectados`;
     this.adminStatusBadge.textContent = state.status;
 
     const round = state.currentRound;
@@ -149,8 +149,10 @@ class AdminApp {
     switch (state.status) {
       case 'LOBBY':
         this.btnStartRound.disabled = false;
+        this.btnStartRound.textContent = '▶️ Iniciar Batalha (Rodada 1)';
         this.btnCloseRound.disabled = true;
         this.btnNextRound.disabled = true;
+        this.btnNextRound.textContent = '⏭️ Próxima Rodada (Abre Votação e Timer 30s)';
         this.adminStatusBadge.style.color = '#60a5fa';
         break;
 
@@ -165,6 +167,11 @@ class AdminApp {
         this.btnStartRound.disabled = true;
         this.btnCloseRound.disabled = true;
         this.btnNextRound.disabled = false;
+        if (state.currentRound && state.currentRound.id >= (state.totalRounds || 10)) {
+          this.btnNextRound.textContent = '🏆 Encerrar e Ver Troféus';
+        } else {
+          this.btnNextRound.textContent = '⏭️ Próxima Rodada (Abre Votação e Timer 30s)';
+        }
         this.adminStatusBadge.style.color = '#fbbf24';
         break;
 

@@ -97,7 +97,7 @@ describe('GameService Unit Tests', () => {
     ).rejects.toThrow('Você já votou nesta rodada');
   });
 
-  test('deve gerenciar transição de estados: LOBBY -> ACTIVE -> REVEAL -> NEXT', () => {
+  test('deve gerenciar transição de estados: LOBBY -> ACTIVE -> REVEAL -> NEXT (vai direto para ACTIVE com votação aberta)', async () => {
     gameService.startRound(1);
     expect(gameService.getState().status).toBe('ACTIVE');
     expect(gameService.getState().currentRound.id).toBe(1);
@@ -105,9 +105,24 @@ describe('GameService Unit Tests', () => {
     gameService.closeRound();
     expect(gameService.getState().status).toBe('REVEAL');
 
+    // Ao avançar, a rodada 2 deve iniciar de uma só vez em ACTIVE e com votação aberta
     gameService.nextRound();
-    // Ao avançar, a rodada 2 é selecionada mas volta para aguardar abertura ou abre
-    expect(gameService.getState().currentRound.id).toBe(2);
+    const state = gameService.getState();
+    expect(state.currentRound.id).toBe(2);
+    expect(state.status).toBe('ACTIVE');
+    expect(typeof state.roundStartTime).toBe('number');
+    expect(Date.now() - state.roundStartTime).toBeLessThan(1000);
+
+    // Deve permitir voto imediatamente na rodada 2
+    const voteResult = await gameService.registerVote({
+      participantId: 'dev-1',
+      nickname: 'Alice',
+      roundId: 2,
+      choice: 'A',
+      responseTimeMs: 200
+    });
+    expect(voteResult.success).toBe(true);
+    expect(voteResult.countA).toBe(1);
   });
 
   test('resetGame deve gerar um novo sessionId e limpar contagens', () => {
