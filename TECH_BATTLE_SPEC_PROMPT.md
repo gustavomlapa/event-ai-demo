@@ -38,6 +38,44 @@ Este documento foi elaborado para ser utilizado como **contexto e prompt mestre*
 
 ---
 
+## 🎨 Design System & UI Experience (Estilo Google Developer & Material You Dark)
+
+Para garantir uma estética visual moderna, profissional e memorável no palco de um evento de tecnologia, a interface deve seguir rigorosamente a linguagem de design **Google Developer / Material Design 3 (Dark Theme)**:
+
+### 1. Paleta de Cores Oficial do Google
+- **Google Blue (`#4285F4` / `#1a73e8`):** Cor primária do sistema, botões principais, Opção A no confronto e glow de destaque esquerdo.
+- **Google Red (`#EA4335` / `#d93025`):** Opção B no confronto, alertas de tempo crítico e glow de destaque direito.
+- **Google Yellow (`#FBBC04` / `#f9ab00`):** Indicador de contagem regressiva, status `REVEAL` e troféu "The Flash".
+- **Google Green (`#34A853` / `#1e8e3e`):** Indicador de presença de devs online (pulsante), confirmação de voto computado e status de sucesso.
+- **Google 4-Color Gradient:** `linear-gradient(90deg, #4285F4 0%, #EA4335 33%, #FBBC04 66%, #34A853 100%)` aplicado em filetes sutis no topo do cabeçalho, barras de destaque e logotipo.
+
+### 2. Superfícies & Glassmorphism (Material You Dark)
+- **Background Principal:** `#0b0e14` (preto profundo azulado com iluminação ambiente radial suave em Google Blue e Google Red).
+- **Cards e Containers:** `#161b26` com bordas translúcidas finas (`border: 1px solid rgba(255, 255, 255, 0.08)`), blur de vidro (`backdrop-filter: blur(12px)`) e sombras de elevação suaves (`box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4)`).
+- **Bordas Arredondadas (Shape Hierarchy):** `16px` para cards, `12px` para botões e inputs, `9999px` (pílula) para chips e badges de status.
+
+### 3. Tipografia Google
+- **Fonte Principal (Sans):** `'Google Sans', 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`.
+- **Fonte Monospaçada (Contadores & Timers):** `'Roboto Mono', 'SF Mono', monospace` com pesos destacados (`700` e `800`).
+
+### 4. Micro-interações, Animações & Feedback Visual de Alto Impacto
+- **Partículas de Confete (`canvas-confetti`):**
+  * **No Smartphone do Participante:** Quando o usuário votou na opção que venceu a rodada (maioria dos votos no `REVEAL`), disparar uma chuva festiva de confetes nas 4 cores do Google (`#4285F4`, `#EA4335`, `#FBBC04`, `#34A853`), acompanhada de vibração háptica comemorativa (`navigator.vibrate([120, 60, 120])`) e badge com glow dourado.
+  * **No Telão do Palco:** A cada rodada revelada, disparar um canhão lateral de confetes emanando do lado da opção vencedora (canhão azul à esquerda se Opção A vencer; canhão vermelho à direita se Opção B vencer). Na Cerimônia Final (Oscar dos Devs), disparar uma salva de fogos de artifício em cascata por toda a tela.
+- **Efeito de Vibração da Tela (Screen Shake Effect):**
+  * **No Smartphone do Participante:** Se o participante votou na opção que perdeu a rodada (minoria), aplicar uma animação CSS acelerada de tremor na tela (`@keyframes screenShake`, duração de ~400ms), alertando com vibração rápida no aparelho (`navigator.vibrate(200)`) e exibindo um badge bem-humorado (*"Você votou com a minoria audaciosa! 🐺"*).
+  * **No Telão do Palco:** O card da opção perdedora sofre um leve tremor com redução de opacidade e escala (`opacity: 0.6`, `transform: scale(0.97)`), enquanto o card vencedor salta para a frente com coroa luminosa (`@keyframes winnerBounce`) e borda neon dourada.
+- **Micro-interações no Toque (1-Tap):** Efeito tátil de pressão imediata (`transform: scale(0.96)` ao toque), efeito de onda/ripple, feedback vibratório (`navigator.vibrate([40])`) e badge animado de confirmação em milissegundos.
+- **Alerta de Timer Crítico no Telão:** Quando o timer regressivo atingir `<= 5s`, acionar uma animação pulsante urgente em vermelho néon (`@keyframes timerUrgentPulse`) para criar tensão cênica no auditório.
+- **Cabo de Guerra Vivo com Raio Divisor Deslizante (Design Limpo & Moderno):**
+  * **Preenchimento Limpo & Elegante (Sem Texturas Móveis Internas):** As barras devem ter gradientes ou cores sólidas limpas e modernas do Google (#4285F4 e #EA4335). **PROIBIDO** usar listras diagonais, zebras animadas ou qualquer padrão se mexendo dentro das barras para evitar poluição visual. O visual deve ser sóbrio, premium e legível à distância.
+  * **Divisor Central com Raio Móvel (Clash Marker ⚡ Deslizante):** Um marcador central vertical luminoso com o ícone de raio (`⚡`) que marca a fronteira exata entre as duas opções. Esse raio **NÃO pode ficar estático no meio (50%)**: ele **DEVE se mover suavemente na horizontal para a esquerda ou para a direita** acompanhando a porcentagem real dos votos em tempo real (`left: ${percentA}%`). Exemplo: com 67% vs 33%, a barra azul ocupa 67%, a vermelha 33% e o raio elétrico se desloca suavemente até 67% da pista. Com 0 votos, permanece no centro neutro (50%).
+  * **Física Fluida Contínua (Lerp via `requestAnimationFrame`):** A movimentação da barra e do raio deve ocorrer por interpolação suave contínua nos status de votação (`ACTIVE` e `REVEAL`), garantindo deslocamento orgânico e sem saltos bruscos mesmo sob alta frequência de votos.
+  * **Conclusão Cênica no Final (*REVEAL*):** Ao fechar a votação, o raio divisor e as barras travam na porcentagem definitiva, uma onda de choque luminosa percorre a barra e o lado vencedor recebe destaque dourado comemorativo.
+- **Pills de Status:** Chips com ponto de luz pulsante (CSS `@keyframes pulseGlow`).
+
+---
+
 ## 🎮 Mecânica do Jogo: Tech Battle Royale
 
 ### 📱 1. Tela do Participante (Mobile - `/`)
@@ -60,9 +98,14 @@ Este documento foi elaborado para ser utilizado como **contexto e prompt mestre*
     * Com 0 votos: exibe `0% (0 votos)` para ambas opções, com a barra visual mantida no centro (50% / 50%) aguardando o primeiro voto.
     * Conforme os votos entram: calcula estritamente `percentA = Math.round((countA / total) * 100)` e `percentB = 100 - percentA` (sempre somando 100%).
     * **Atenção ao Bug Falsy em JS:** Nunca use `percentA || 50` no frontend, pois `0 || 50` vira `50`, gerando distorções como 50% vs 100%. Use sempre nullish check (`percentA !== undefined ? percentA : 0`).
-  - Timer regressivo visual sincronizado (10 segundos).
-- **Modo Revelação da Rodada:**
-  - Percentual exato de cada opção e comemoração visual da opção vencedora (ou empate técnico).
+  - **Timer Regressivo Visual (30 Segundos):**
+    * Configurado em 30 segundos que inicia após a abertura da rodada pelo admin.
+    * Ao terminar os 30s, o timer congela em 0s sem disparar nenhuma ação automática, aguardando pacientemente que o apresentador encerre a votação no admin.
+    * Se o apresentador encerrar a votação antes dos 30s, o timer é pausado imediatamente.
+- **Modo Revelação da Rodada (Persistência no Telão):**
+  * Quando o apresentador fecha uma votação no admin, o telão do palco continua exibindo os resultados consolidados da rodada (percentuais exatos, total de votos e vencedor).
+  * O telão **só muda de tela quando o admin clicar em "Próxima Rodada"** no painel de controle.
+  * **Avanço Direto para Nova Rodada:** Ao clicar em "Próxima Rodada", o telão do palco já mostra a próxima rodada imediatamente, inicia o timer regressivo de 30s e abre a votação nos smartphones dos participantes de uma só vez — sem a necessidade de um botão manual de "abrir votação" a cada rodada.
 - **Modo Cerimônia Final ("O Oscar dos Devs"):**
   - Revelação dos troféus divertidos calculados matematicamente sobre os votos reais:
     - ⚡ **The Flash (Gatilho Rápido):** Menor tempo médio de resposta geral da sala.
@@ -71,8 +114,13 @@ Este documento foi elaborado para ser utilizado como **contexto e prompt mestre*
     - 🤝 **A Voz do Povo:** Participante que votou 100% alinhado com a maioria em todas as rodadas.
     - 🏆 **A Stack Oficial do Auditório:** Resumo leve das tecnologias consagradas pela plateia.
 
-### 🎛️ 3. Painel do Apresentador (Controle Discreto - `/admin.html`)
-- Botão "Abrir Rodada", "Fechar Rodada", "Próxima Rodada" e "Revelar Troféus".
+### 🎛️ 3. Painel do Apresentador (Controle Protegido - `/admin.html`)
+- **Proteção por Senha:** O acesso ao painel de administração e às rotas `/api/admin/*` exige autenticação por senha (definida inicialmente como `"techadmin"`).
+- **Fluxo Ágil de 1 Toque por Rodada:**
+  - **No Início (Lobby):** Botão "▶️ Iniciar Batalha (Rodada 1)" para disparar a primeira rodada já em votação ativa com timer de 30s.
+  - **Durante a Votação (`ACTIVE`):** Botão "⏹️ Fechar Votação / Revelar" para pausar o timer e consolidar os resultados no telão.
+  - **Na Revelação (`REVEAL`):** Botão "⏭️ Próxima Rodada" que avança a rodada, atualiza o telão, inicia o timer de 30s e abre a votação instantaneamente (sem botão redundante de abrir votação).
+  - **Encerramento:** Botão "🏆 Ir para Troféus (Oscar)" para apresentar o pódio e "🔄 Resetar Jogo".
 
 ---
 
@@ -128,20 +176,34 @@ Construa a aplicação completa com a seguinte estrutura e boas práticas:
    9. Logs Estruturados no Console vs. Métricas e Tracing Distribuído
    10. Dev Especialista Profundo vs. Dev Generalista Orquestrador de IA
 
-3. REQUISITOS DAS TELAS (FRONTEND MODERNO & RESPONSIVO):
-   - Telão (/screen.html): Exibe QR Code gerado dinamicamente para a URL atual, contador de devs conectados, barra animada de "cabo de guerra" que oscila em tempo real com os votos, timer regressivo de 10s e o pódio final dos troféus com confetes.
-     * Coerência de Votos em Tempo Real: Com 0 votos exiba 0% (0 votos) e mantenha a barra no centro (50%/50%). Conforme os votos chegam, a barra e os textos refletem as porcentagens reais (ex: 0% e 100%, 33% e 67%). NUNCA use 'data.percentA || 50' no frontend (pois '0 || 50' vira 50 em JS); use sempre verificação estrita ('data.percentA !== undefined ? Number(data.percentA) : 0').
-   - Participante Mobile (/): Tela limpa para digitar apelido, 2 botões grandes coloridos por rodada, haptic feedback no clique, bloqueio de voto duplo, registro do tempo de resposta (ms) e exibição das porcentagens reais na revelação.
-     * Gestão de Sessão & Desconexão: Botão "Sair / Trocar Nickname" no cabeçalho e na tela de espera (ocultado durante ACTIVE para evitar toques acidentais). Rastreie um sessionId no servidor (regenerado ao reiniciar o jogo no admin); clientes sincronizam via polling e efetuam auto-logout ao detectar sessionId alterado, retornando à tela de inserção de nome.
-   - Painel do Apresentador (/admin.html): Controle discreto para iniciar, fechar e avançar rodadas ou reiniciar a partida.
+3. DESIGN SYSTEM & UI MODERNA ESTILO GOOGLE DEVELOPER:
+   - Adote rigorosamente a estética Google Developer / Material Design 3 (Dark Theme):
+     * Paleta Oficial: Google Blue (#4285F4) na Opção A, Google Red (#EA4335) na Opção B, Google Yellow (#FBBC04) em timers/troféus, Google Green (#34A853) em status de conexão/sucesso.
+     * Fita das 4 Cores do Google: Borda decorativa superior com linear-gradient(90deg, #4285F4, #EA4335, #FBBC04, #34A853) no cabeçalho e logo.
+     * Tipografia: 'Google Sans', 'Outfit', 'Inter' para textos e títulos; 'Roboto Mono' para timers, votos e porcentagens.
+     * Superfícies: Fundo preto profundo (#0b0e14) com brilho radial sutil, cards elevados em #161b26 com bordas translúcidas de 1px e backdrop-filter (glassmorphism).
+     * Cabo de Guerra Vivo com Raio Divisor Deslizante: Barras com preenchimento limpo e gradiente Google moderno (sem listras ou texturas móveis internas). Divisor central luminoso com ícone de raio (⚡) que NÃO fica estático no meio, mas se move suavemente na horizontal acompanhando os votos (ex: 67% vs 33% desloca o raio e a divisa para 67%). Física fluida contínua (lerp via requestAnimationFrame) nos status ACTIVE e REVEAL.
+     * Microinterações & Efeitos Visuais Cinematográficos: Integração com 'canvas-confetti' para celebrações dinâmicas, animação CSS @keyframes screenShake para efeito de tremor ao errar e pulsos de alerta em timers críticos (<= 5s).
 
-4. ALGORITMO DOS TROFÉUS (O OSCAR DOS DEVS):
+4. REQUISITOS DAS TELAS (FRONTEND MODERNO & RESPONSIVO):
+   - Telão (/screen.html): Exibe QR Code com moldura iluminada no estilo Google Developer, contador de devs conectados, barra elegante e limpa de cabo de guerra com raio divisor móvel (⚡) que desliza suavemente para os lados refletindo as porcentagens reais em tempo real, timer regressivo de 30s (com pulso urgente em <= 5s, pausa ao fechar e ocioso se zerar) e o pódio final dos troféus com cascata de confetes.
+     * Conclusão Épica da Rodada no Telão: Ao fechar a rodada, dispara onda de choque na barra de cabo de guerra com travamento no percentual definitivo, canhão lateral de confetes emanando do lado vencedor (azul à esquerda ou vermelho à direita), coroa iluminada no card vencedor e leve tremor no perdedor.
+     * Avanço Contínuo: Ao clicar em "Próxima Rodada", o telão atualiza imediatamente para o novo confronto, dispara o cronômetro de 30s e libera a votação instantaneamente.
+     * Coerência de Votos em Tempo Real: Com 0 votos exiba 0% (0 votos) e mantenha a barra e o raio no centro (50%/50%). Conforme os votos chegam, a barra e o raio refletem as porcentagens reais (ex: 0% e 100%, 33% e 67%). O raio e a divisa devem acompanhar fielmente o percentual da Opção A (left: ${percentA}%). NUNCA use 'data.percentA || 50' no frontend (pois '0 || 50' vira 50 em JS); use sempre verificação estrita ('data.percentA !== undefined ? Number(data.percentA) : 0').
+   - Participante Mobile (/): Tela moderna e limpa para digitar apelido, 2 botões grandes coloridos por rodada com elevação Material e micro-interação ao toque (scale 0.96, ripple effect), haptic feedback no clique, bloqueio de voto duplo e registro do tempo de resposta (ms).
+     * Feedback Visual Dramático na Revelação (REVEAL):
+       - Se o usuário votou na opção vencedora (maioria): dispara explosão festiva de confetes na tela usando 'canvas-confetti', badge comemorativo iluminado e vibração de vitória no aparelho.
+       - Se o usuário votou na opção perdedora (minoria): aplica efeito de tremor na tela inteira (screen shake CSS via @keyframes screenShake) com vibração e badge bem-humorado de minoria audaciosa.
+     * Gestão de Sessão & Desconexão: Botão "Sair / Trocar Nickname" no cabeçalho e na tela de espera (ocultado durante ACTIVE para evitar toques acidentais). Rastreie um sessionId no servidor (regenerado ao reiniciar o jogo no admin); clientes sincronizam via polling e efetuam auto-logout ao detectar sessionId alterado, retornando à tela de inserção de nome.
+   - Painel do Apresentador (/admin.html): Controle com layout inspirado no Google Cloud Console, protegido por senha fixa ("techadmin"). Ao clicar em "Próxima Rodada", o sistema avança a rodada, inicia o timer regressivo de 30s e abre a votação de uma só vez (sem necessidade de um botão avulso redundante para abrir votação a cada rodada). Rotas /api/admin/* protegidas com validação de senha.
+
+5. ALGORITMO DOS TROFÉUS (O OSCAR DOS DEVS):
    - "The Flash" (Gatilho Rápido): Menor tempo médio de resposta geral.
    - "O Filósofo da Arquitetura": Maior tempo médio de resposta geral.
    - "O Lobo Solitário": Mais votos em opções minoritárias.
    - "A Voz do Povo": Mais votos alinhados com a maioria da sala.
 
-5. QUALIDADE & TESTES:
+6. QUALIDADE & TESTES:
    - Escreva testes unitários para o serviço de jogo e para o algoritmo de troféus.
    - Escreva testes de integração para as rotas da API.
    - Crie o Dockerfile multi-stage otimizado para Cloud Run executando como usuário não-root.
