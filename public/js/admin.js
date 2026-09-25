@@ -5,8 +5,10 @@ class AdminApp {
   constructor() {
     this.pollInterval = null;
     this.currentState = null;
+    this.adminPassword = sessionStorage.getItem('tech_battle_admin_pass') || '';
 
     this.initElements();
+    this.checkAuth();
     this.startPolling();
   }
 
@@ -22,6 +24,88 @@ class AdminApp {
     this.btnCloseRound = document.getElementById('btnCloseRound');
     this.btnNextRound = document.getElementById('btnNextRound');
     this.btnTrophies = document.getElementById('btnTrophies');
+
+    // Elementos de Login
+    this.adminLoginModal = document.getElementById('adminLoginModal');
+    this.adminLoginForm = document.getElementById('adminLoginForm');
+    this.adminPasswordInput = document.getElementById('adminPasswordInput');
+    this.adminLoginError = document.getElementById('adminLoginError');
+  }
+
+  async checkAuth() {
+    if (!this.adminPassword) {
+      this.showLoginModal();
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: this.adminPassword })
+      });
+
+      if (res.ok) {
+        this.hideLoginModal();
+      } else {
+        this.logout();
+      }
+    } catch (err) {
+      this.showLoginModal();
+    }
+  }
+
+  showLoginModal() {
+    this.adminLoginModal.classList.remove('hidden');
+    if (this.adminPasswordInput) {
+      setTimeout(() => this.adminPasswordInput.focus(), 100);
+    }
+  }
+
+  hideLoginModal() {
+    this.adminLoginModal.classList.add('hidden');
+    if (this.adminLoginError) {
+      this.adminLoginError.style.display = 'none';
+      this.adminLoginError.textContent = '';
+    }
+  }
+
+  async handleLogin(e) {
+    e.preventDefault();
+    const pass = (this.adminPasswordInput.value || '').trim();
+    if (!pass) return;
+
+    this.adminLoginError.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pass })
+      });
+
+      if (res.ok) {
+        this.adminPassword = pass;
+        sessionStorage.setItem('tech_battle_admin_pass', pass);
+        this.hideLoginModal();
+        this.fetchState();
+      } else {
+        this.adminLoginError.textContent = 'Senha incorreta! Tente novamente.';
+        this.adminLoginError.style.display = 'block';
+      }
+    } catch (err) {
+      this.adminLoginError.textContent = 'Erro ao verificar senha: ' + err.message;
+      this.adminLoginError.style.display = 'block';
+    }
+  }
+
+  logout() {
+    sessionStorage.removeItem('tech_battle_admin_pass');
+    this.adminPassword = '';
+    if (this.adminPasswordInput) {
+      this.adminPasswordInput.value = '';
+    }
+    this.showLoginModal();
   }
 
   startPolling() {
@@ -93,10 +177,29 @@ class AdminApp {
     }
   }
 
+  async adminFetch(url, options = {}) {
+    if (!this.adminPassword) {
+      this.showLoginModal();
+      throw new Error('Autenticação necessária');
+    }
+
+    const headers = {
+      ...(options.headers || {}),
+      'x-admin-password': this.adminPassword
+    };
+
+    const res = await fetch(url, { ...options, headers });
+    if (res.status === 401) {
+      this.logout();
+      throw new Error('Sessão expirada ou senha incorreta.');
+    }
+    return res;
+  }
+
   async startRound() {
     this.btnStartRound.disabled = true;
     try {
-      await fetch('/api/admin/start-round', {
+      await this.adminFetch('/api/admin/start-round', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -109,7 +212,7 @@ class AdminApp {
   async closeRound() {
     this.btnCloseRound.disabled = true;
     try {
-      await fetch('/api/admin/close-round', { method: 'POST' });
+      await this.adminFetch('/api/admin/close-round', { method: 'POST' });
       this.fetchState();
     } catch (err) {
       alert('Erro ao fechar rodada: ' + err.message);
@@ -119,7 +222,7 @@ class AdminApp {
   async nextRound() {
     this.btnNextRound.disabled = true;
     try {
-      await fetch('/api/admin/next-round', { method: 'POST' });
+      await this.adminFetch('/api/admin/next-round', { method: 'POST' });
       this.fetchState();
     } catch (err) {
       alert('Erro ao avançar rodada: ' + err.message);
@@ -130,9 +233,9 @@ class AdminApp {
     if (!confirm('Deseja encerrar as batalhas e exibir os Troféus no Telão?')) return;
     try {
       // Avança direto para status FINISHED
-      await fetch('/api/admin/close-round', { method: 'POST' });
+      await this.adminFetch('/api/admin/close-round', { method: 'POST' });
       for (let i = 0; i < 11; i++) {
-        await fetch('/api/admin/next-round', { method: 'POST' });
+        await this.adminFetch('/api/admin/next-round', { method: 'POST' });
       }
       this.fetchState();
     } catch (err) {
@@ -146,7 +249,7 @@ class AdminApp {
     }
 
     try {
-      await fetch('/api/admin/reset', { method: 'POST' });
+      await this.adminFetch('/api/admin/reset', { method: 'POST' });
       alert('Jogo reiniciado com sucesso! Novo SessionId gerado.');
       this.fetchState();
     } catch (err) {

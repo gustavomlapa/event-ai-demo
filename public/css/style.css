@@ -515,3 +515,27 @@ body {
 .btn-admin-purple { background: #7c3aed; }
 .btn-admin-gray { background: #475569; }
 .btn-admin:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* Modal de Autenticação do Admin */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 13, 22, 0.9);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.admin-modal-box {
+  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  border-radius: 20px;
+  max-width: 440px;
+  width: 100%;
+  padding: 32px 24px;
+  text-align: center;
+}
